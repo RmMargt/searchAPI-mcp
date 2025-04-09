@@ -71,8 +71,8 @@ SearchAPI-MCP-Server implements the Model Context Protocol, encapsulating variou
 
 ```bash
 # 克隆仓库 | Clone repository
-git clone https://github.com/RmMargt/searchapi.git
-cd searchapi
+git clone https://github.com/RmMargt/searchAPI-mcp.git
+cd searchAPI-mcp
 
 # 创建并激活虚拟环境 | Create and activate virtual environment
 python -m venv venv
@@ -106,7 +106,7 @@ Add the following to your Claude for Desktop configuration file:
         "mcp[cli]",
         "mcp",
         "run",
-        "/path/to/searchapi/mcp_server.py"
+        "/path/to/searchAPI-mcp/mcp_server.py"
       ],
       "env": {
         "SEARCHAPI_API_KEY": "your_api_key_here"
