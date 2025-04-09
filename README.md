@@ -99,13 +99,12 @@ Add the following to your Claude for Desktop configuration file:
 {
   "mcpServers": {
     "searchapi": {
+      "name": "searchapi",
       "command": "uv",
       "args": [
         "run",
         "--with",
         "mcp[cli]",
-        "mcp",
-        "run",
         "/path/to/searchAPI-mcp/mcp_server.py"
       ],
       "env": {
