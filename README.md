@@ -82,10 +82,6 @@ source venv/bin/activate  # Linux/Mac
 
 # 安装依赖 | Install dependencies
 pip install -r requirements.txt
-
-# 配置环境变量 | Configure environment variables
-cp .env.example .env
-# 编辑 .env 文件，添加您的 API 密钥 | Edit .env file, add your API key
 ```
 
 ## MCP 配置 | MCP Configuration
@@ -99,7 +95,6 @@ Add the following to your Claude for Desktop configuration file:
 {
   "mcpServers": {
     "searchapi": {
-      "name": "searchapi",
       "command": "uv",
       "args": [
         "run",
