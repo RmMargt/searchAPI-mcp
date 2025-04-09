@@ -8,6 +8,26 @@ SearchAPI-MCP-Server 实现了 Model Context Protocol，将各种搜索操作封
 
 ## 功能特性
 
+### Google 搜索
+* 网页搜索结果
+* 知识图谱集成
+* 相关问题推荐
+* 搜索建议
+* 多语言支持
+* 地区特定结果
+* 时间范围过滤
+* 安全搜索选项
+
+### Google Video 搜索
+* 视频内容搜索
+* 视频列表获取
+* 视频轮播支持
+* 短视频内容
+* 按时长筛选
+* 按来源过滤
+* 按上传时间排序
+* 高清预览支持
+
 ### Google Maps 搜索
 * 搜索地点和服务
 * 获取地点详细信息
@@ -65,6 +85,34 @@ cp .env.example .env
 ```
 
 ## API 使用说明
+
+### Google 搜索
+```python
+search_google(
+    q: str,                # 搜索关键词
+    gl: str = "us",        # 地理位置（国家代码）
+    hl: str = "en",        # 界面语言
+    google_domain: str = "google.com",  # Google 域名
+    num: str = "10",       # 结果数量
+    time_period: str = None,  # 时间范围
+    safe: str = "off",     # 安全搜索
+    ...
+)
+```
+
+### Google Video 搜索
+```python
+search_google_videos(
+    q: str,                # 搜索关键词
+    gl: str = "us",        # 地理位置（国家代码）
+    hl: str = "en",        # 界面语言
+    google_domain: str = "google.com",  # Google 域名
+    num: str = "10",       # 结果数量
+    time_period: str = None,  # 时间范围
+    safe: str = "off",     # 安全搜索
+    ...
+)
+```
 
 ### Google Maps 搜索
 ```python
