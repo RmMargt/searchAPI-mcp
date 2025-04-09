@@ -2,196 +2,205 @@
 
 一个基于 Model Context Protocol (MCP) 的搜索 API 服务器，提供了对 Google Maps、Google Flights、Google Hotels 等服务的标准化访问接口。该服务器使 AI 助手能够通过统一的接口访问各种搜索服务。
 
-## 概述
+A Model Context Protocol (MCP) based search API server that provides standardized access to Google Maps, Google Flights, Google Hotels and other services. This server enables AI assistants to access various search services through a unified interface.
+
+## 概述 | Overview
 
 SearchAPI-MCP-Server 实现了 Model Context Protocol，将各种搜索操作封装为工具和资源。它作为 AI 助手和搜索服务之间的桥梁，支持地图搜索、航班查询、酒店预订等多种功能。
 
-## 功能特性
+SearchAPI-MCP-Server implements the Model Context Protocol, encapsulating various search operations as tools and resources. It serves as a bridge between AI assistants and search services, supporting map search, flight queries, hotel bookings, and more.
 
-### Google 搜索
-* 网页搜索结果
-* 知识图谱集成
-* 相关问题推荐
-* 搜索建议
-* 多语言支持
-* 地区特定结果
-* 时间范围过滤
-* 安全搜索选项
+## 功能特性 | Features
 
-### Google Video 搜索
-* 视频内容搜索
-* 视频列表获取
-* 视频轮播支持
-* 短视频内容
-* 按时长筛选
-* 按来源过滤
-* 按上传时间排序
-* 高清预览支持
+### Google 搜索 | Google Search
+* 网页搜索结果 | Web search results
+* 知识图谱集成 | Knowledge graph integration
+* 相关问题推荐 | Related questions
+* 搜索建议 | Search suggestions
+* 多语言支持 | Multi-language support
+* 地区特定结果 | Region-specific results
+* 时间范围过滤 | Time range filtering
+* 安全搜索选项 | Safe search options
 
-### Google Maps 搜索
-* 搜索地点和服务
-* 获取地点详细信息
-* 查看用户评论
-* 获取位置坐标
+### Google Video 搜索 | Google Video Search
+* 视频内容搜索 | Video content search
+* 视频列表获取 | Video list retrieval
+* 视频轮播支持 | Video carousel support
+* 短视频内容 | Short video content
+* 按时长筛选 | Duration filtering
+* 按来源过滤 | Source filtering
+* 按上传时间排序 | Upload time sorting
+* 高清预览支持 | HD preview support
 
-### Google Flights 航班搜索
-* 单程/往返航班搜索
-* 多城市行程规划
-* 航班价格日历
-* 航班筛选和排序
-* 行李额度查询
-* 航空公司选择
+### Google Maps 搜索 | Google Maps Search
+* 搜索地点和服务 | Search places and services
+* 获取地点详细信息 | Get place details
+* 查看用户评论 | View user reviews
+* 获取位置坐标 | Get location coordinates
 
-### Google Hotels 酒店搜索
-* 酒店位置搜索
-* 价格和可用性查询
-* 设施和服务筛选
-* 用户评分和评论
-* 特殊优惠查询
-* 房型选择
+### Google Flights 航班搜索 | Google Flights Search
+* 单程/往返航班搜索 | One-way/round-trip flight search
+* 多城市行程规划 | Multi-city itinerary planning
+* 航班价格日历 | Flight price calendar
+* 航班筛选和排序 | Flight filtering and sorting
+* 行李额度查询 | Baggage allowance query
+* 航空公司选择 | Airline selection
 
-### 高级功能
-* 多语言支持
-* 货币转换
-* 地理编码和反向地理编码
-* 距离计算
-* 自定义搜索参数
+### Google Hotels 酒店搜索 | Google Hotels Search
+* 酒店位置搜索 | Hotel location search
+* 价格和可用性查询 | Price and availability query
+* 设施和服务筛选 | Facilities and services filtering
+* 用户评分和评论 | User ratings and reviews
+* 特殊优惠查询 | Special offers query
+* 房型选择 | Room type selection
 
-## 安装说明
+### 高级功能 | Advanced Features
+* 多语言支持 | Multi-language support
+* 货币转换 | Currency conversion
+* 地理编码和反向地理编码 | Geocoding and reverse geocoding
+* 距离计算 | Distance calculation
+* 自定义搜索参数 | Custom search parameters
 
-### 环境要求
-* Python 3.7 或更高版本
-* pip 包管理器
+## 安装说明 | Installation
 
-### 基础安装
+### 环境要求 | Requirements
+* Python 3.7 或更高版本 | Python 3.7 or higher
+* pip 包管理器 | pip package manager
+
+### 基础安装 | Basic Installation
 
 ```bash
-# 克隆仓库
+# 克隆仓库 | Clone repository
 git clone https://github.com/RmMargt/searchapi.git
 cd searchapi
 
-# 创建并激活虚拟环境
+# 创建并激活虚拟环境 | Create and activate virtual environment
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
-# 或
+# 或 | or
 .\venv\Scripts\activate  # Windows
 
-# 安装依赖
+# 安装依赖 | Install dependencies
 pip install -r requirements.txt
 
-# 配置环境变量
+# 配置环境变量 | Configure environment variables
 cp .env.example .env
-# 编辑 .env 文件，添加您的 API 密钥
+# 编辑 .env 文件，添加您的 API 密钥 | Edit .env file, add your API key
 ```
 
-## API 使用说明
+## MCP 配置 | MCP Configuration
 
-### Google 搜索
+### Claude for Desktop 配置示例 | Claude for Desktop Configuration Example
+
+在 Claude for Desktop 的配置文件中添加以下内容：
+Add the following to your Claude for Desktop configuration file:
+
+```json
+{
+  "mcpServers": {
+    "searchapi": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "mcp[cli]",
+        "mcp",
+        "run",
+        "/path/to/searchapi/mcp_server.py"
+      ],
+      "env": {
+        "SEARCHAPI_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+配置文件位置 | Configuration file location:
+* macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+* Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+## API 使用说明 | API Documentation
+
+### Google 搜索 | Google Search
 ```python
 search_google(
-    q: str,                # 搜索关键词
-    gl: str = "us",        # 地理位置（国家代码）
-    hl: str = "en",        # 界面语言
-    google_domain: str = "google.com",  # Google 域名
-    num: str = "10",       # 结果数量
-    time_period: str = None,  # 时间范围
-    safe: str = "off",     # 安全搜索
+    q: str,                # 搜索关键词 | Search query
+    gl: str = "us",        # 地理位置（国家代码）| Geographic location (country code)
+    hl: str = "en",        # 界面语言 | Interface language
+    google_domain: str = "google.com",  # Google 域名 | Google domain
+    num: str = "10",       # 结果数量 | Number of results
+    time_period: str = None,  # 时间范围 | Time period
+    safe: str = "off",     # 安全搜索 | Safe search
     ...
 )
 ```
 
-### Google Video 搜索
+### Google Video 搜索 | Google Video Search
 ```python
 search_google_videos(
-    q: str,                # 搜索关键词
-    gl: str = "us",        # 地理位置（国家代码）
-    hl: str = "en",        # 界面语言
-    google_domain: str = "google.com",  # Google 域名
-    num: str = "10",       # 结果数量
-    time_period: str = None,  # 时间范围
-    safe: str = "off",     # 安全搜索
+    q: str,                # 搜索关键词 | Search query
+    gl: str = "us",        # 地理位置（国家代码）| Geographic location (country code)
+    hl: str = "en",        # 界面语言 | Interface language
+    google_domain: str = "google.com",  # Google 域名 | Google domain
+    num: str = "10",       # 结果数量 | Number of results
+    time_period: str = None,  # 时间范围 | Time period
+    safe: str = "off",     # 安全搜索 | Safe search
     ...
 )
 ```
 
-### Google Maps 搜索
+### Google Maps 搜索 | Google Maps Search
 ```python
 search_google_maps(
-    query: str,           # 搜索关键词
-    location_ll: str = None  # 可选的位置坐标
+    query: str,           # 搜索关键词 | Search query
+    location_ll: str = None  # 可选的位置坐标 | Optional location coordinates
 )
 ```
 
-### Google Flights 航班搜索
+### Google Flights 航班搜索 | Google Flights Search
 ```python
 search_google_flights(
-    departure_id: str,    # 出发机场代码
-    arrival_id: str,      # 到达机场代码
-    outbound_date: str,   # 出发日期
-    flight_type: str = "round_trip",  # 航班类型
-    return_date: str = None,  # 返回日期（往返航班必填）
+    departure_id: str,    # 出发机场代码 | Departure airport code
+    arrival_id: str,      # 到达机场代码 | Arrival airport code
+    outbound_date: str,   # 出发日期 | Departure date
+    flight_type: str = "round_trip",  # 航班类型 | Flight type
+    return_date: str = None,  # 返回日期（往返航班必填）| Return date (required for round trips)
     ...
 )
 ```
 
-### Google Hotels 酒店搜索
+### Google Hotels 酒店搜索 | Google Hotels Search
 ```python
 search_google_hotels(
-    q: str,              # 搜索关键词
-    check_in_date: str,  # 入住日期
-    check_out_date: str, # 退房日期
+    q: str,              # 搜索关键词 | Search query
+    check_in_date: str,  # 入住日期 | Check-in date
+    check_out_date: str, # 退房日期 | Check-out date
     ...
 )
 ```
 
-### Google Maps Reviews 评论搜索
+### Google Maps Reviews 评论搜索 | Google Maps Reviews Search
 ```python
 search_google_maps_reviews(
-    place_id: str = None,  # 地点ID
-    data_id: str = None,   # 数据ID
+    place_id: str = None,  # 地点ID | Place ID
+    data_id: str = None,   # 数据ID | Data ID
     ...
 )
 ```
 
-## 常见问题
-
-### API 限制
-* 请确保遵守 SearchAPI.io 的使用限制
-* 注意请求频率限制
-* 关注 API 配额使用情况
-
-### 错误处理
-* 服务器会自动处理常见的 API 错误
-* 提供详细的错误信息和建议
-* 支持请求重试机制
-
-### 调试
-通过设置环境变量启用详细日志：
-```bash
-export MCP_DEBUG=1  # Linux/macOS
-set MCP_DEBUG=1     # Windows
-```
-
-## 贡献指南
-
-欢迎提交 Pull Request！
-
-1. Fork 本仓库
-2. 创建您的特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交您的修改 (`git commit -m '添加一些很棒的功能'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 开启一个 Pull Request
-
-## 许可证
+## 许可证 | License
 
 本项目采用 MIT 许可证 - 详见 LICENSE 文件
+This project is licensed under the MIT License - see the LICENSE file for details
 
-## 致谢
+## 致谢 | Acknowledgments
 
-* Model Context Protocol - 协议规范
-* FastMCP - Python MCP 实现
-* SearchAPI.io - 搜索服务提供商
+* Model Context Protocol - 协议规范 | Protocol specification
+* FastMCP - Python MCP 实现 | Python MCP implementation
+* SearchAPI.io - 搜索服务提供商 | Search service provider
 
 ---
 
-_注意：本服务器会与外部 API 进行交互。在使用 MCP 客户端确认操作之前，请始终验证请求的操作是否合适。_ 
+_注意：本服务器会与外部 API 进行交互。在使用 MCP 客户端确认操作之前，请始终验证请求的操作是否合适。_
+_Note: This server interacts with external APIs. Always verify that requested operations are appropriate before confirming them in MCP clients._ 
