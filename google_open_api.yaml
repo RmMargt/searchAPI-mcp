@@ -1,0 +1,2572 @@
+openapi: 3.0.0
+info:
+  title: Google Search API
+  version: 1.0.0
+  description: |
+    The Google Search API allows access to SERP data. It provides information such as organic results, ads, knowledge graph, answer box, related questions, and many more!
+
+servers:
+  - url: https://www.searchapi.io/api/v1
+
+paths:
+  /search:
+    get:
+      tags:
+        - Google Search
+      operationId: googleSearch
+      summary: Search results
+      description: |
+        Searches for organic_results, knowledge_graph, answer_box, related_questions, ads, local_results and many more.
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          required: true
+          description: |
+            Parameter defines the query you want to search. You can use anything that you would use in a regular Google search. e.g. inurl:, site:, intitle:. We also support advanced search query parameters such as as_dt and as_eq.
+        - in: query
+          name: device
+          schema:
+            type: string
+            enum: ["desktop", "tablet", "mobile"]
+            default: "desktop"
+          description: |
+            The default parameter `desktop` defines the search on a desktop device. The `mobile` parameter defines the search on a mobile device. The `tablet` parameter defines the search on a tablet device.
+        - in: query
+          name: location
+          schema:
+            type: string
+          description: |
+            Parameter defines from where you want the search to originate. If several locations match the location requested, we'll pick the most popular one. For example - New York,United States.
+        - in: query
+          name: uule
+          schema:
+            type: string
+          description: |
+            Parameter is the Google encoded location you want to use for the search. SearchApi automatically generated the uule parameter when you use the location parameter but we allow you to overwrite it directly. uule and location parameters can't be used together.
+        - in: query
+          name: google_domain
+          schema:
+            type: string
+            default: "google.com"
+            enum: ["google.com","google.ad","google.ae","google.com.af","google.com.ag","google.com.ai","google.al","google.am","google.co.ao","google.com.ar","google.as","google.at","google.com.au","google.az","google.ba","google.com.bd","google.be","google.bf","google.bg","google.com.bh","google.bi","google.bj","google.com.bn","google.com.bo","google.com.br","google.bs","google.bt","google.co.bw","google.by","google.com.bz","google.ca","google.com.kh","google.cd","google.cf","google.cg","google.ch","google.ci","google.co.ck","google.cl","google.cm","google.com.co","google.co.cr","google.com.cu","google.cv","google.com.cy","google.cz","google.de","google.dj","google.dk","google.dm","google.com.do","google.dz","google.com.ec","google.ee","google.com.eg","google.es","google.com.et","google.fi","google.fm","google.com.fj","google.fr","google.ga","google.ge","google.com.gh","google.com.gi","google.gl","google.gm","google.gp","google.gr","google.com.gt","google.gy","google.com.hk","google.hn","google.hr","google.ht","google.hu","google.co.id","google.iq","google.ie","google.co.il","google.co.in","google.is","google.it","google.com.jm","google.jo","google.co.jp","google.co.ke","google.ki","google.kg","google.co.kr","google.com.kw","google.kz","google.la","google.com.lb","google.li","google.lk","google.co.ls","google.lt","google.lu","google.lv","google.com.ly","google.co.ma","google.md","google.mg","google.mk","google.ml","google.com.mm","google.mn","google.ms","google.com.mt","google.mu","google.mv","google.mw","google.com.mx","google.com.my","google.co.mz","google.com.na","google.ne","google.com.ng","google.com.ni","google.nl","google.no","google.com.np","google.nr","google.nu","google.co.nz","google.com.om","google.com.pk","google.com.pa","google.com.pe","google.com.ph","google.pl","google.com.pg","google.com.pr","google.ps","google.pt","google.com.py","google.com.qa","google.ro","google.rs","google.ru","google.rw","google.com.sa","google.com.sb","google.sc","google.se","google.com.sg","google.sh","google.si","google.sk","google.com.sl","google.sn","google.sm","google.so","google.sr","google.com.sv","google.td","google.tg","google.co.th","google.com.tj","google.tk","google.tl","google.tm","google.to","google.tn","google.com.tr","google.tt","google.com.tw","google.co.tz","google.com.ua","google.co.ug","google.co.uk","google.com.uy","google.co.uz","google.com.vc","google.co.ve","google.vg","google.co.vi","google.com.vn","google.vu","google.ws","google.co.za","google.co.zm","google.co.zw"]
+          description: |
+            The default parameter `google.com` defines the Google domain of the search.
+        - in: query
+          name: gl
+          schema:
+            type: string
+            default: "us"
+            enum: ["af", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "il", "it", "jm", "jp", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "an", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "sh", "kn", "lc", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sk", "si", "sb", "so", "za", "gs", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "uk", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"]
+          description: |
+            The default parameter `us` defines the country of the search.
+        - in: query
+          name: hl
+          schema:
+            type: string
+            default: "en"
+            enum: ["af", "ak", "sq", "ws", "am", "ar", "hy", "az", "eu", "be", "bem", "bn", "bh", "xx-bork", "bs", "br", "bg", "bt", "km", "ca", "chr", "ny", "zh-cn", "zh-tw", "co", "hr", "cs", "da", "nl", "xx-elmer", "en", "eo", "et", "ee", "fo", "tl", "fi", "fr", "fy", "gaa", "gl", "ka", "de", "el", "kl", "gn", "gu", "xx-hacker", "ht", "ha", "haw", "iw", "hi", "hu", "is", "ig", "id", "ia", "ga", "it", "ja", "jw", "kn", "kk", "rw", "rn", "xx-klingon", "kg", "ko", "kri", "ku", "ckb", "ky", "lo", "la", "lv", "ln", "lt", "loz", "lg", "ach", "mk", "mg", "my", "ml", "mt", "mv", "mi", "mr", "mfe", "mo", "mn", "sr-me", "ne", "pcm", "nso", "no", "nn", "oc", "or", "om", "ps", "fa", "xx-pirate", "pl", "pt", "pt-br", "pt-pt", "pa", "qu", "ro", "rm", "nyn", "ru", "gd", "sr", "sh", "st", "tn", "crs", "sn", "sd", "si", "sk", "sl", "so", "es", "es-419", "su", "sw", "sv", "tg", "ta", "tt", "te", "th", "ti", "to", "lua", "tum", "tr", "tk", "tw", "ug", "uk", "ur", "uz", "vu", "vi", "cy", "wo", "xh", "yi", "yo", "zu"]
+          description: |
+            The default parameter en defines the interface language of the search.
+        - in: query
+          name: lr
+          schema:
+            type: string
+          description: |
+            The lr parameter restricts search results to documents written in a particular language or a set of languages.
+        - in: query
+          name: cr
+          schema:
+            type: string
+            enum: ["af", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cy", "cz", "dk", "dj", "dm", "do", "tl", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gn", "gw", "gy", "ht", "hm", "hn", "hk", "hu", "is", "in", "id", "iq", "ie", "il", "it", "jm", "jp", "jo", "kz", "ke", "ki", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "ms", "ma", "mz", "na", "nr", "np", "nl", "an", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "kn", "lc", "vc", "ws", "sm", "st", "sa", "sn", "cs", "sc", "sl", "sg", "sk", "si", "sb", "so", "za", "gs", "kr", "es", "lk", "sh", "pm", "sr", "sj", "sz", "se", "ch", "tw", "tj", "tz", "th", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "va", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"]
+          description: |
+            The cr parameter restricts search results to documents originating in a particular country. Google determines the country of a document by the top-level domain (TLD) of the document's URL or by Web server's IP address geographic location.
+        - in: query
+          name: nfpr
+          schema:
+            type: integer
+            default: 0
+            enum: [0, 1]
+          description: |
+            This parameter controls whether results from queries that have been auto-corrected for spelling errors are included. To exclude these auto-corrected results, set the value to `1`. By default, the value is `0`, meaning auto-corrected results are included.
+        - in: query
+          name: filter
+          schema:
+            type: integer
+            default: 1
+            enum: [0, 1]
+          description: |
+            This parameter controls whether the "Duplicate Content" and "Host Crowding" filters are enabled. Set the value to 1 to enable these filters, which is the default setting. To disable these filters, set the value to 0.
+        - in: query
+          name: safe
+          schema:
+            type: string
+            default: "off"
+            enum: ["active", "off"]
+          description: |
+            This parameter toggles the SafeSearch feature for the results. SafeSearch operates by filtering out adult content from your search results. Google's filters use proprietary technology to check keywords, phrases and URLs.
+        - in: query
+          name: time_period
+          schema:
+            type: string
+            enum: ["last_hour", "last_day", "last_week", "last_month", "last_year"]
+          description: |
+            This parameter restricts results to URLs based on date.
+        - in: query
+          name: time_period_min
+          schema:
+            type: string
+          description: |
+            This parameter specifies the start of the time period. It could be used in combination with the time_period_max parameter. The value should be in the format `MM/DD/YYYY`.
+        - in: query
+          name: time_period_max
+          schema:
+            type: string
+          description: |
+            This parameter specifies the end of the time period. It could be used in combination with the time_period_min parameter. The value should be in the format MM/DD/YYYY.
+        - in: query
+          name: num
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: |
+            This parameter specifies the number of results to display per page. By default, it is set to 10. Use in combination with the `page` parameter to implement pagination functionality. Max `num` per page is 100, min - 1.
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+          description: |
+            This parameter indicates which page of results to return. By default, it is set to 1. Use in combination with the `num` parameter to implement pagination.
+        - in: query
+          name: engine
+          schema:
+            type: string
+            enum: [google]
+          required: true
+          description: Parameter defines an engine that will be used to retrieve real-time data. It must be set to `google`.
+        - in: query
+          name: api_key
+          schema:
+            type: string
+          required: true
+          description: The `api_key` authenticates your requests. Use it as a query parameter or in the Authorization header (Bearer YOUR_API_KEY).
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  search_metadata:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                      request_time_taken:
+                        type: number
+                      parsing_time_taken:
+                        type: number
+                      total_time_taken:
+                        type: number
+                      request_url:
+                        type: string
+                      html_url:
+                        type: string
+                      json_url:
+                        type: string
+                  search_information:
+                    type: object
+                    properties:
+                      query_displayed:
+                        type: string
+                      total_results:
+                        type: integer
+                      page:
+                        type: integer
+                      time_taken_displayed:
+                        type: integer
+                      detected_location:
+                        type: string
+                      did_you_mean:
+                        type: string
+                  shopping_ads:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ShoppingAd'
+                  shopping_ads_more_link:
+                    type: string
+                  ads:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ad'
+                  local_ads:
+                    $ref: '#/components/schemas/LocalAd'
+                  answer_box:
+                    $ref: '#/components/schemas/AnswerBox'
+                  sport_results:
+                    $ref: '#/components/schemas/SportResult'
+                  weather_result:
+                    $ref: '#/components/schemas/WeatherResult'
+                  salary_estimates:
+                    $ref: '#/components/schemas/SalaryEstimates'
+                  knowledge_graph:
+                    $ref: '#/components/schemas/KnowledgeGraph'
+                  organic_results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganicResult'
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+                  universities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/University'
+                  about_this_result:
+                    $ref: '#/components/schemas/AboutThisResult'
+                  about_this_result_more_link:
+                    type: string
+                  job_results:
+                    $ref: '#/components/schemas/JobResults'
+                  inline_images:
+                    $ref: '#/components/schemas/InlineImages'
+                  inline_images_more_link:
+                    type: object
+                    properties:
+                      link:
+                        type: string
+                  inline_shopping:
+                    $ref: '#/components/schemas/InlineShopping'
+                  local_map:
+                    $ref: '#/components/schemas/LocalMap'
+                  local_results:
+                    $ref: '#/components/schemas/LocalResults'
+                  local_results_more_link:
+                    type: object
+                    properties:
+                      link:
+                        type: string
+                  from_sources_across_the_web:
+                    $ref: '#/components/schemas/FromSourcesAcrossTheWeb'
+                  discussions_and_forums:
+                    $ref: '#/components/schemas/DiscussionsAndForums'
+                  related_questions:
+                    $ref: '#/components/schemas/RelatedQuestions'
+                  questions_and_answers:
+                    $ref: '#/components/schemas/QuestionsAndAnswers'
+                  explore_brands:
+                    $ref: '#/components/schemas/ExploreBrands'
+                  courses:
+                    $ref: '#/components/schemas/Courses'
+                  top_stories:
+                    $ref: '#/components/schemas/TopStories'
+                  top_stories_more_link:
+                    type: object
+                    properties:
+                      link:
+                        type: string
+                  things_to_do:
+                    $ref: '#/components/schemas/ThingsToDo'
+                  things_to_do_more_link:
+                    type: object
+                    properties:
+                      link:
+                        type: string
+                  inline_videos:
+                    $ref: '#/components/schemas/InlineVideos'
+                  inline_videos_more_link:
+                    type: string
+                  inline_tweets:
+                    $ref: '#/components/schemas/InlineTweets'
+                  inline_tweets_more_link:
+                    type: object
+                    properties:
+                      link:
+                        type: string
+                  scholarly_articles:
+                    $ref: '#/components/schemas/ScholarlyArticles'
+                  inline_recipes:
+                    $ref: '#/components/schemas/InlineRecipes'
+                  related_searches:
+                    $ref: '#/components/schemas/RelatedSearches'
+                  pagination:
+                    type: object
+                    properties:
+                      current:
+                        type: integer
+                      previous:
+                        type: string
+                      next:
+                        type: string
+
+
+        '400':
+          description: Validation Error. There is an issue with query parameters.
+        '401':
+          description: Authentication Error. The API key is missing or invalid.
+        '429':
+          description: Rate Limit. The search limit is reached. Consider upgrading your plan.
+        '500':
+          description: Server Error. Internal server error.
+        '503':
+          description: Timeout. We could not retrieve results in 90 seconds.
+
+      security:
+        - ApiKeyAuth: []
+
+components:
+  schemas:
+    ShoppingAd:
+      type: object
+      properties:
+        position:
+          type: integer
+        block_position:
+          type: string
+        title:
+          type: string
+        seller:
+          type: string
+        link:
+          type: string
+        deal:
+          type: string
+        price:
+          type: string
+        extracted_price:
+          type: number
+        original_price:
+          type: string
+        extracted_original_price:
+          type: number
+        order_fullfillmed_method:
+          type: string
+        promo_code:
+          type: object
+          properties:
+            code:
+              type: string
+            expiration_date:
+              type: string
+              format: date
+        installment:
+          type: object
+          properties:
+            down_payment:
+              type: string
+            extracted_down_payment:
+              type: number
+            months:
+              type: string
+            extracted_months:
+              type: number
+            cost_per_month:
+              type: string
+            extracted_cost_per_month:
+              type: number
+        rating:
+          type: number
+        reviews:
+          type: integer
+        durability:
+         type: string
+        delivery:
+          type: string
+        source:
+          type: object
+          properties:
+            title:
+              type: string
+            link:
+              type: string
+        extensions:
+          type: array
+          items:
+            type: string
+        image:
+          type: string
+
+    Ad:
+      type: object
+      properties:
+        position:
+          type: integer
+        block_position:
+          type: string
+        title:
+          type: string
+        link:
+          type: string
+        source:
+          type: string
+        domain:
+          type: string
+        displayed_link:
+          type: string
+        snippet:
+          type: string
+        snippet_highlighted_words:
+          type: array
+          items:
+            type: string
+        sitelinks:
+          type: object
+          properties:
+            expanded:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  snippet:
+                    type: string
+                  snippet_highlighted_words:
+                    type: array
+                    items:
+                      type: string
+                  link:
+                    type: string
+            inline:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  link:
+                    type: string
+            address:
+              type: object
+              properties:
+                title:
+                  type: string
+                tracking_link:
+                  type: string
+            sale:
+              type: object
+              properties:
+                title:
+                  type: string
+                link:
+                  type: string
+            products:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  tracking_link:
+                    type: string
+                  extensions:
+                    type: array
+                    items:
+                      type: string
+            extensions:
+              type: array
+              items:
+                type: string
+            rating:
+              type: number
+            reviews:
+              type: integer
+            rating_link:
+              type: string
+            thumbnail:
+              type: string
+            favicon:
+              type: string
+
+    LocalAd:
+      type: object
+      properties:
+        title:
+          type: string
+        badge:
+          type: string
+        ads:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+              badge:
+                type: string
+              phone:
+                type: string
+              rating:
+                type: number
+              reviews:
+                type: integer
+              message_link:
+                type: string
+              extensions:
+                type: array
+                items:
+                  type: string
+              thumbnail:
+                type: string
+        see_more_link:
+          type: object
+          properties:
+            title:
+              type: string
+            link:
+              type: string
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+
+    AnswerBox:
+      oneOf:
+        - $ref: '#/components/schemas/PopulationType'
+        - $ref: '#/components/schemas/OpenHoursType'
+        - $ref: '#/components/schemas/FinanceType'
+        - $ref: '#/components/schemas/CurrencyConverterType'
+        - $ref: '#/components/schemas/LocalTimeType'
+        - $ref: '#/components/schemas/OrganicResultType'
+        - $ref: '#/components/schemas/LocationType'
+
+    PopulationType:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - population_type
+        place:
+          type: string
+        answer:
+          type: string
+        population:
+          type: string
+        year:
+          type: integer
+        others:
+          type: array
+          items:
+            type: object
+            properties:
+              place:
+                type: string
+              population:
+                type: string
+              link:
+                type: string
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+              link:
+                type: string
+        explore_more_Link:
+          type: string
+
+    OpenHoursType:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - open_hours
+        answer:
+          type: string
+        title:
+          type: string
+        rating:
+          type: number
+        reviews:
+          type: integer
+        time:
+          type: string
+        description:
+          type: string
+        hours_list:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    day:
+                      type: string
+                    time:
+                      type: string
+        local_results:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+              time:
+                type: string
+
+    FinanceType:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - finance_results
+        title:
+          type: string
+        link:
+          type: string
+        answer:
+          type: string
+        exchange:
+          type: string
+        stock:
+          type: string
+        price:
+          type: number
+        previous_close:
+          type: number
+        price_change:
+          type: object
+          properties:
+            amount:
+              type: number
+            percentage:
+              type: number
+            period:
+              type: string
+            is_up:
+              type: boolean
+            is_down:
+              type: boolean
+        market:
+          type: object
+          properties:
+            is_closed:
+              type: boolean
+            date:
+              type: string
+            trading:
+              type: string
+            price:
+              type: number
+            price_change:
+              type: object
+              properties:
+                amount:
+                  type: number
+                percentage:
+                  type: number
+                is_up:
+                  type: boolean
+                is_down:
+                  type: boolean
+        market_table:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+
+    CurrencyConverterType:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - currency_converter
+        answer:
+          type: string
+        price:
+          type: number
+        currency:
+          type: string
+        date:
+          type: string
+        price_change:
+          type: object
+          properties:
+            amount:
+              type: number
+            percentage:
+              type: number
+            period:
+              type: string
+        from:
+          type: object
+          properties:
+            price:
+              type: number
+            currency:
+              type: string
+        to:
+          type: object
+          properties:
+            price:
+              type: number
+            currency:
+              type: string
+        chart:
+          type: array
+          items:
+            type: object
+            properties:
+              price:
+                type: number
+              datetime:
+                type: string
+              unix_date:
+                type: integer
+
+    LocalTimeType:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - local_time
+        answer:
+          type: string
+        local_time:
+          type: string
+        location:
+          type: string
+
+    OrganicResultType:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - organic_result
+        title:
+          type: string
+        answer:
+          type: string
+        answer_date:
+          type: string
+        link:
+          type: string
+        answer_table:
+          type: object
+          properties:
+            headers:
+              type: array
+              items:
+                type: string
+            rows:
+              type: array
+              items:
+                type: string
+        answer_list:
+          type: array
+          items:
+            type: string
+        snippet:
+          type: string
+        date:
+          type: string
+        organic_result:
+          type: object
+          properties:
+            title:
+              type: string
+            link:
+              type: string
+            domain:
+              type: string
+            displayed_link:
+              type: string
+            about_this_result:
+              type: object
+              properties:
+                source:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    description:
+                      type: string
+                    link:
+                      type: string
+                    favicon:
+                      type: string
+            about_page_link:
+              type: string
+            favicon:
+              type: string
+
+        people_also_search_for:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+              thumbnail:
+                type: string
+        thumbnail:
+          type: string
+
+    LocationType:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - location
+        answer:
+          type: string
+        landmark:
+          type: string
+
+    SportResult:
+      oneOf:
+        - $ref: '#/components/schemas/AthleteStats'
+        - $ref: '#/components/schemas/IndividualSport'
+        - $ref: '#/components/schemas/IndividualSportStandings'
+        - $ref: '#/components/schemas/TeamSports'
+
+    AthleteStats:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - athlete_stats
+        title:
+          type: string
+        proffesion:
+          type: string
+        stats:
+          type: array
+          items:
+            type: object
+            properties:
+              team:
+                type: string
+              games:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    games_table:
+                      type: object
+                      properties:
+                        headers:
+                          type: array
+                          items:
+                            type: string
+                        rows:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              type: string
+        thumbnail:
+          type: string
+
+    IndividualSport:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - individual_sport
+        title:
+          type: string
+        subtitle:
+          type: string
+        proffesion:
+          type: string
+        date:
+          type: string
+        track:
+          type: object
+          properties:
+            title:
+              type: string
+            link:
+              type: string
+        tournament_details:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+        video:
+          type: object
+          properties:
+            title:
+              type: string
+            length:
+              type: string
+            link:
+              type: string
+            thumbnail:
+              type: string
+        status:
+          type: string
+        games:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              stage:
+                type: string
+              status:
+                type: string
+              location:
+                type: string
+              video:
+                type: object
+                properties:
+                  link:
+                    type: string
+                  length:
+                    type: string
+                  thumbnail:
+                    type: string
+              players:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    nationality:
+                      type: string
+                    ranking:
+                      type: integer
+                    sets:
+                      type: object
+                      additionalProperties:
+                        type: string
+              teams:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    score:
+                      type: string
+        leaderboard:
+          type: array
+          items:
+            type: object
+            properties:
+              position:
+                type: integer
+              nationality:
+                type: string
+              name:
+                type: string
+              team:
+                type: string
+              car_number:
+                type: string
+              time:
+                type: string
+              points:
+                type: number
+              results:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  value:
+                    type: string
+        thumbnail:
+          type: string
+
+    IndividualSportStandings:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - individual_sport_standings
+        title:
+          type: string
+        subtitle:
+          type: string
+        date:
+          type: string
+        standings:
+          type: array
+          items:
+            type: object
+            properties:
+              rank:
+                type: integer
+              name:
+                type: string
+              team:
+                type: string
+              link:
+                type: string
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: number
+        thumbnail:
+          type: string
+
+    TeamSports:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - team_sport
+        title:
+          type: string
+        subtitle:
+          type: string
+        game_spotlight:
+          type: object
+          properties:
+            league:
+              type: string
+            stage:
+              type: string
+            date:
+              type: string
+            time:
+              type: string
+            stadium:
+              type: string
+            city:
+              type: string
+            status:
+              type: string
+            videos:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  link:
+                    type: string
+                  length:
+                    type: string
+                  source:
+                    type: string
+            teams:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  rankings:
+                    type: string
+                  stats:
+                    type: object
+                    properties:
+                      wins:
+                        type: integer
+                      losses:
+                        type: integer
+                  score:
+                    type: string
+            score_table:
+              type: object
+              properties:
+                headers:
+                  type: array
+                  items:
+                    type: string
+                rows:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: string
+        games:
+          type: array
+          items:
+            type: object
+            properties:
+              league:
+                type: string
+              stage:
+                type: string
+              date:
+                type: string
+              time:
+                type: string
+              stadium:
+                type: string
+              status:
+                type: string
+              videos:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    link:
+                      type: string
+                    length:
+                      type: string
+                    source:
+                      type: string
+              teams:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    rankings:
+                      type: string
+                    stats:
+                      type: object
+                      properties:
+                        wins:
+                          type: integer
+                        losses:
+                          type: integer
+                    score:
+                      type: string
+        standings:
+          type: object
+          properties:
+            season:
+              type: string
+            round:
+              type: string
+            headers:
+              type: array
+              items:
+                type: string
+            rows:
+              type: array
+              items:
+                type: array
+                items:
+                  type: string
+        thumbnail:
+          type: string
+
+    WeatherResult:
+      type: object
+      properties:
+        temperature:
+          type: object
+          properties:
+            fahrenheit:
+              type: number
+            celsius:
+              type: number
+        unit:
+          type: string
+        precipitation:
+          type: string
+        humidity:
+          type: string
+        wind:
+          type: object
+          properties:
+            kmh:
+              type: number
+            mph:
+              type: number
+        location:
+          type: string
+        date:
+          type: string
+        weather:
+          type: string
+        thumbnail:
+          type: string
+        forecast:
+          type: array
+          items:
+            type: object
+            properties:
+              day:
+                type: string
+              weather:
+                type: string
+              temperature:
+                type: object
+                properties:
+                  high:
+                    type: integer
+                  low:
+                    type: integer
+              precipitation:
+                type: string
+              humidity:
+                type: string
+              wind:
+                type: string
+              thumbnail:
+                type: string
+        hourly_forecast:
+          type: array
+          items:
+            type: object
+            properties:
+              time:
+                type: string
+              weather:
+                type: string
+              temperature:
+                type: string
+              precipitation:
+                type: string
+              humidity:
+                type: string
+              wind:
+                type: string
+        precipitation_forecast:
+          type: array
+          items:
+            type: object
+            properties:
+              precipitation:
+                type: string
+              day:
+                type: string
+              time:
+                type: string
+        wind_forecast:
+          type: array
+          items:
+            type: object
+            properties:
+              speed:
+                type: string
+              direction:
+                type: string
+              day:
+                type: string
+              time:
+                type: string
+              angle:
+                type: integer
+
+    SalaryEstimates:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          salary:
+            type: object
+            properties:
+              text:
+                type: string
+              range:
+                type: string
+              range_from:
+                type: number
+              range_to:
+                type: number
+              frequency:
+                type: string
+          link:
+            type: string
+          location:
+            type: string
+          source:
+            type: string
+          favicon:
+            type: string
+
+    KnowledgeGraph:
+      type: object
+      properties:
+        kgmid:
+          type: string
+        knowledge_graph_type:
+          type: string
+        title:
+          type: string
+        rating:
+          type: number
+        reviews:
+          type: integer
+        type:
+          type: string
+        price:
+          type: string
+        price_description:
+          type: string
+        website:
+          type: string
+        directions:
+          type: string
+        phone:
+          type: string
+        place_actions:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              link:
+                type: string
+              tooltips:
+                type: array
+                items:
+                  type: string
+        description:
+          type: string
+        source:
+          type: object
+          properties:
+            name:
+              type: string
+            link:
+              type: string
+        manufacturer:
+          type: object
+          properties:
+            title:
+              type: string
+            link:
+              type: string
+            name:
+              type: string
+            type:
+              type: string
+        stock:
+          type: object
+          properties:
+            ticker:
+              type: string
+            link:
+              type: string
+            price:
+              type: string
+            extracted_price:
+              type: number
+            change:
+              type: number
+            change_percent:
+              type: number
+            last_updated:
+              type: string
+        service_options:
+          type: array
+          items:
+            type: string
+        ludocid:
+          type: string
+        address:
+          type: string
+        menu:
+          type: object
+          properties:
+            text:
+              type: string
+            link:
+              type: string
+        local_time:
+          type: string
+        weather:
+          type: string
+        additionalProperties1:
+          type: string
+        additionalProperties2:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+              link:
+                type: string
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              price:
+                type: string
+              extracted_price:
+                type: number
+              image:
+                type: string
+        offers:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              name:
+                type: string
+              link:
+                type: string
+              price:
+                type: string
+              extracted_price:
+                type: number
+              installment:
+                type: object
+                properties:
+                  down_payment:
+                    type: string
+                  extracted_down_payment:
+                    type: number
+                  months:
+                    type: string
+                  cost_per_month:
+                    type: string
+                  extracted_cost_per_month:
+                    type: number
+              delivery_price:
+                type: string
+              extracted_delivery_price:
+                type: number
+              tax_price:
+                type: string
+              extracted_tax_price:
+                type: number
+              total_price:
+                type: string
+              extracted_total_price:
+                type: number
+              merchant:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  domain:
+                    type: string
+                  country_code:
+                    type: string
+                  rating:
+                    type: number
+                  reviews:
+                    type: string
+                  link:
+                    type: string
+                  favicon:
+                    type: string
+              return_days:
+                type: string
+              details:
+                type: array
+                items:
+                  type: string
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+        details:
+          type: object
+          properties:
+            description:
+              type: string
+            source:
+              type: object
+              properties:
+                name:
+                  type: string
+                link:
+                  type: string
+            specifications:
+              type: array
+              items:
+                type: object
+                properties:
+                  category:
+                    type: string
+                  attributes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+        hours:
+          type: string
+        open_hours:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+        popular_times:
+          type: object
+          properties:
+            live:
+              type: object
+              properties:
+                time:
+                  type: string
+                info:
+                  type: string
+                wait_time:
+                  type: string
+                busyness_score:
+                  type: integer
+                typical_time_spent:
+                  type: string
+            chart:
+              type: object
+              properties:
+                additionalProperties:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      time:
+                        type: string
+                      busyness_score:
+                        type: integer
+                      info:
+                        type: string
+                      wait_time:
+                        type: string
+                      wait_time_minutes:
+                        type: string
+        web_reviews:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+              rating_text:
+                type: string
+              rating:
+                type: number
+              rating_out_of:
+                type: number
+              reviews:
+                type: integer
+        user_reviews:
+          type: array
+          items:
+            type: object
+            properties:
+              review:
+                type: string
+              review_highlighted_words:
+                type: array
+                items:
+                  type: string
+              link:
+                type: string
+              rating:
+                type: number
+              user:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  link:
+                    type: string
+                  image:
+                    type: string
+        product_reviews:
+          type: object
+          properties:
+            rating:
+              type: number
+            reviews:
+              type: integer
+            reviews_histogram:
+              type: object
+              properties:
+                "1":
+                  type: integer
+                "2":
+                  type: integer
+                "3":
+                  type: integer
+                "4":
+                  type: integer
+                "5":
+                  type: integer
+            top_review:
+              type: object
+              properties:
+                review:
+                  type: string
+                date:
+                  type: string
+                rating:
+                  type: number
+                source:
+                  type: string
+                user:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    link:
+                      type: string
+                    image:
+                      type: string
+            popular_questions:
+              type: array
+              items:
+                type: string
+        merchant_description:
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+        profiles:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              link:
+                type: string
+              image:
+                type: string
+        company_reviews:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+              rating_text:
+                type: string
+              rating:
+                type: number
+              rating_out_of:
+                type: number
+              reviews:
+                type: integer
+        extensions:
+          type: array
+          items:
+            type: string
+        typical_salaries:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              rating_text:
+                type: string
+              rating:
+                type: number
+              rating_out_of:
+                type: number
+              reviews:
+                type: integer
+              link:
+                type: string
+        editorial_reviews:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              review:
+                type: string
+              rating:
+                type: number
+              source:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  link:
+                    type: string
+        people_also_search_for:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              extension:
+                type: string
+              link:
+                type: string
+              image:
+                type: string
+        people_also_search_for_link:
+          type: string
+        image:
+          type: string
+        local_map:
+          type: object
+          properties:
+            link:
+              type: string
+            gps_coordinates:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+            image:
+              type: string
+        images:
+          type: array
+          items:
+            type: string
+
+    OrganicResult:
+      type: object
+      properties:
+        position:
+          type: integer
+        title:
+          type: string
+        link:
+          type: string
+        source:
+          type: string
+        domain:
+          type: string
+        displayed_link:
+          type: string
+        snippet:
+          type: string
+        snippet_highlighted_words:
+          type: array
+          items:
+            type: string
+        date:
+          type: string
+        displayed_results:
+          type: string
+        sitelinks:
+          type: object
+          properties:
+            inline:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  link:
+                    type: string
+            expanded:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  link:
+                    type: string
+                  snippet:
+                    type: string
+            list:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  link:
+                    type: string
+                  answer_count:
+                    type: integer
+                  date:
+                    type: string
+            searchbox:
+              type: boolean
+        rich_snippet:
+          type: object
+          properties:
+            detected_extensions:
+              type: object
+              properties:
+                rating:
+                  type: number
+                reviews:
+                  type: integer
+                time:
+                  type: string
+                table:
+                  type: object
+                  properties:
+                    headers:
+                      type: array
+                      items:
+                        type: string
+                    rows:
+                      type: array
+                      items:
+                        type: array
+                        items:
+                          type: string
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      question:
+                        type: string
+                      answer:
+                        type: string
+                list:
+                  type: array
+                  items:
+                    type: string
+            attributes:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  value:
+                    type: string
+            extensions:
+              type: array
+              items:
+                type: string
+        about_page_link:
+          type: string
+        favicon:
+          type: string
+        nested_results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganicResult'
+        video:
+          type: object
+          properties:
+            link:
+              type: string
+            source:
+              type: string
+            channel:
+              type: string
+            date:
+              type: string
+            length:
+              type: string
+            key_moments:
+              type: array
+              items:
+                type: object
+                properties:
+                  time:
+                    type: string
+                  seconds:
+                    type: integer
+                  title:
+                    type: string
+                  link:
+                    type: string
+                  thumbnail:
+                    type: string
+        thumbnail:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+
+    Event:
+      type: object
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        date:
+          type: object
+          properties:
+            day:
+              type: string
+            month:
+              type: string
+        duration:
+          type: string
+        address:
+          type: string
+        location:
+          type: string
+        thumbnail:
+          type: string
+
+    University:
+      type: object
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        city:
+          type: string
+        education_type:
+          type: string
+        education_duration:
+          type: string
+        extracted_education_duration:
+          type: number
+        thumbnail:
+          type: string
+
+    AboutThisResult:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          link:
+            type: string
+          source:
+            type: string
+          domain:
+            type: string
+          displayed_link:
+            type: string
+          snippet:
+            type: string
+          date:
+            type: string
+          rating:
+            type: number
+          reviews:
+            type: integer
+          favicon:
+            type: string
+
+    JobResults:
+      type: object
+      properties:
+        location:
+          type: string
+        filters:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              is_trending:
+                type: boolean
+              link:
+                type: string
+        jobs:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              company:
+                type: string
+              location:
+                type: string
+              via:
+                type: string
+              extensions:
+                type: array
+                items:
+                  type: string
+        jobs_more_link:
+          type: object
+          properties:
+            title:
+              type: string
+            link:
+              type: string
+
+    InlineImages:
+      type: object
+      properties:
+        suggestions:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+              chips:
+                type: string
+              thumbnail:
+                type: string
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              source:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  link:
+                    type: string
+              original:
+                type: object
+                properties:
+                  link:
+                    type: string
+                  width:
+                    type: integer
+                  height:
+                    type: integer
+                  size:
+                    type: string
+              tag:
+                type: string
+              thumbnail:
+                type: string
+
+    InlineShopping:
+      type: array
+      items:
+        type: object
+        properties:
+          position:
+            type: integer
+          title:
+            type: string
+          seller:
+            type: string
+          rating:
+            type: number
+          reviews:
+            type: integer
+          price:
+            type: string
+          extracted_price:
+            type: number
+          original_price:
+            type: string
+          extracted_original_price:
+            type: number
+          deal:
+            type: string
+          durability:
+            type: string
+          comments:
+            type: array
+            items:
+              type: string
+          review:
+            type: object
+            properties:
+              link:
+                type: string
+              source:
+                type: string
+          extensions:
+            type: array
+            items:
+              type: string
+          thumbnail:
+            type: string
+
+    LocalMap:
+      type: object
+      properties:
+        link:
+          type: string
+        gps_coordinates:
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+        image:
+          type: string
+        streetview:
+          type: object
+          properties:
+            link:
+              type: string
+            image:
+              type: string
+
+    LocalResults:
+      type: array
+      items:
+        type: object
+        properties:
+          position:
+            type: integer
+          title:
+            type: string
+          link:
+            type: string
+          ludocid:
+            type: string
+          rating:
+            type: number
+          reviews:
+            type: integer
+          price:
+            type: string
+          price_description:
+            type: string
+          type:
+            type: string
+          address:
+            type: string
+          phone:
+            type: string
+          is_closed:
+            type: boolean
+          comment:
+            type: string
+          service_options:
+            type: array
+            items:
+              type: string
+          order:
+            type: string
+          website:
+            type: string
+          direction:
+            type: string
+          extensions:
+            type: array
+            items:
+              type: string
+          image:
+            type: string
+
+    FromSourcesAcrossTheWeb:
+      type: object
+      properties:
+        title:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              thumbnail:
+                type: string
+
+    DiscussionsAndForums:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          link:
+            type: string
+          source:
+            type: string
+          date:
+            type: string
+          community:
+            type: string
+          posts:
+            type: string
+
+    RelatedQuestions:
+      type: array
+      items:
+        type: object
+        properties:
+          question:
+            type: string
+          answer:
+            type: string
+          answer_highlight:
+            type: string
+          answer_list:
+            type: array
+            items:
+              type: object
+              properties:
+                text:
+                  type: string
+                link:
+                  type: string
+                image:
+                  type: string
+          answer_table:
+            type: object
+            properties:
+              headers:
+                type: array
+                items:
+                  type: string
+              rows:
+                type: array
+                items:
+                  type: array
+                  items:
+                    type: string
+          date:
+            type: string
+          duration:
+            type: string
+          entity:
+            type: object
+            properties:
+              subject:
+                type: string
+              attribute:
+                type: string
+              value:
+                type: string
+          source:
+            $ref: '#/components/schemas/OrganicResult'
+          search:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+
+    QuestionsAndAnswers:
+      type: array
+      items:
+        type: object
+        properties:
+          question:
+            type: string
+          answer:
+            type: string
+          link:
+            type: string
+          votes:
+            type: integer
+          source:
+            type: string
+
+    ExploreBrands:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          link:
+            type: string
+          snippet:
+            type: string
+          merchant:
+            type: object
+            properties:
+              rating:
+                type: number
+              reviews:
+                type: integer
+              link:
+                type: string
+              badge:
+                type: string
+          thumbnail:
+            type: string
+
+    Courses:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          link:
+            type: string
+          source:
+            type: string
+          rating:
+            type: number
+          reviews:
+            type: integer
+          extensions:
+            type: array
+            items:
+              type: string
+          thumbnail:
+            type: string
+
+    TopStories:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          link:
+            type: string
+          author:
+            type: string
+          author_link:
+            type: string
+          source:
+            type: string
+          date:
+            type: string
+          snippet:
+            type: string
+          is_live:
+            type: boolean
+          is_video:
+            type: boolean
+          thumbnail:
+            type: string
+
+    ThingsToDo:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          link:
+            type: string
+          rating:
+            type: number
+          reviews:
+            type: integer
+          attraction:
+            type: string
+          price:
+            type: string
+          extracted_price:
+            type: number
+          thumbnail:
+            type: string
+
+    InlineVideos:
+      type: array
+      items:
+        type: object
+        properties:
+          position:
+            type: integer
+          title:
+            type: string
+          link:
+            type: string
+          is_live:
+            type: boolean
+          source:
+            type: string
+          channel:
+            type: string
+          date:
+            type: string
+          length:
+            type: string
+          key_moments:
+            type: array
+            items:
+              type: object
+              properties:
+                time:
+                  type: string
+                seconds:
+                  type: integer
+                title:
+                  type: string
+                link:
+                  type: string
+                thumbnail:
+                  type: string
+          image:
+            type: string
+
+    InlineTweets:
+      type: object
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        displayed_link:
+          type: string
+        tweets:
+          type: array
+          items:
+            type: object
+            properties:
+              tweet_id:
+                type: string
+              link:
+                type: string
+              snippet:
+                type: string
+              snippet_link:
+                type: string
+              is_video:
+                type: boolean
+              date:
+                type: string
+              author:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  screen_name:
+                    type: string
+                  link:
+                    type: string
+                  thumbnail:
+                    type: string
+              images:
+                type: array
+                items:
+                  type: string
+        thumbnail:
+          type: string
+
+    ScholarlyArticles:
+      type: object
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        articles:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+              title_highlighted_words:
+                type: array
+                items:
+                  type: string
+              author:
+                type: string
+              cited_by:
+                type: integer
+
+    InlineRecipes:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          link:
+            type: string
+          rating:
+            type: number
+          reviews:
+            type: integer
+          ingredients_count:
+            type: integer
+          ingredients:
+            type: array
+            items:
+              type: string
+          source:
+            type: string
+          duration:
+            type: string
+          thumbnail:
+            type: string
+
+    RelatedSearches:
+      type: array
+      items:
+        type: object
+        properties:
+          query:
+            type: string
+          link:
+            type: string
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: api_key
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: Google Search
+    description: Third party API for Google Search from SearchApi
