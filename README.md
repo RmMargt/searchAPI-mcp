@@ -54,13 +54,6 @@ SearchAPI-MCP-Server implements the Model Context Protocol, encapsulating variou
 * 特殊优惠查询 | Special offers query
 * 房型选择 | Room type selection
 
-### 高级功能 | Advanced Features
-* 多语言支持 | Multi-language support
-* 货币转换 | Currency conversion
-* 地理编码和反向地理编码 | Geocoding and reverse geocoding
-* 距离计算 | Distance calculation
-* 自定义搜索参数 | Custom search parameters
-
 ## 安装说明 | Installation
 
 ### 环境要求 | Requirements
