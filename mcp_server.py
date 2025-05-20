@@ -370,9 +370,17 @@ async def get_current_time(
     now = datetime.now()
     
     # 将字符串参数转换为对应的数据类型
-    days_offset_int = int(days_offset) if days_offset is not None else 0
+    try:
+        days_offset_int = int(days_offset) if days_offset is not None else 0
+    except (TypeError, ValueError):
+        return {"error": "days_offset must be an integer"}
+
     return_future_dates_bool = return_future_dates.lower() == "true" if return_future_dates is not None else False
-    future_days_int = int(future_days) if future_days is not None else 7
+
+    try:
+        future_days_int = int(future_days) if future_days is not None else 7
+    except (TypeError, ValueError):
+        return {"error": "future_days must be an integer"}
     
     target_date = now + timedelta(days=days_offset_int)
     
