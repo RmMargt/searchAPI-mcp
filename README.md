@@ -52,7 +52,14 @@ SearchAPI-MCP-Server implements the Model Context Protocol, encapsulating variou
 * 设施和服务筛选 | Facilities and services filtering
 * 用户评分和评论 | User ratings and reviews
 * 特殊优惠查询 | Special offers query
+
 * 房型选择 | Room type selection
+
+### SearchAPI 新增功能 | Additional SearchAPI Features
+* SearchAPI Dashboard 与账号信息 | Dashboard and account management
+* 搜索历史记录查看 | View search history
+* 更多搜索引擎支持，如 Google Ads Transparency、Google Shopping、Google Images、Google News、Bing、Baidu、Naver、Yahoo、Amazon、Shein、eBay、Google Play Store、Apple App Store、DuckDuckGo、YouTube
+* 专用接口：Google Travel Explore、Google Hotels Autocomplete、Google Flights Location Search、Google Maps Photos、Google Maps Reviews、Google Maps Place
 
 ## 安装说明 | Installation
 
