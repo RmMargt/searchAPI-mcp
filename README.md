@@ -37,6 +37,7 @@ SearchAPI-MCP-Server implements the Model Context Protocol, encapsulating variou
 * 获取地点详细信息 | Get place details
 * 查看用户评论 | View user reviews
 * 获取位置坐标 | Get location coordinates
+* 地点照片检索 | Place photos retrieval
 
 ### Google Flights 航班搜索 | Google Flights Search
 * 单程/往返航班搜索 | One-way/round-trip flight search
@@ -45,6 +46,8 @@ SearchAPI-MCP-Server implements the Model Context Protocol, encapsulating variou
 * 航班筛选和排序 | Flight filtering and sorting
 * 行李额度查询 | Baggage allowance query
 * 航空公司选择 | Airline selection
+* 航班地点搜索 | Flight location search
+* 旅行探索 | Travel explore destinations
 
 ### Google Hotels 酒店搜索 | Google Hotels Search
 * 酒店位置搜索 | Hotel location search
@@ -53,6 +56,7 @@ SearchAPI-MCP-Server implements the Model Context Protocol, encapsulating variou
 * 用户评分和评论 | User ratings and reviews
 * 特殊优惠查询 | Special offers query
 * 房型选择 | Room type selection
+* 自动补全支持 | Autocomplete support
 
 ## 安装说明 | Installation
 
