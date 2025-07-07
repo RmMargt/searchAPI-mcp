@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/rmmargt-searchapi-mcp-badge.png)](https://mseep.ai/app/rmmargt-searchapi-mcp)
+
 # SearchAPI MCP Server
 
 一个基于 Model Context Protocol (MCP) 的搜索 API 服务器，提供了对 Google Maps、Google Flights、Google Hotels 等服务的标准化访问接口。该服务器使 AI 助手能够通过统一的接口访问各种搜索服务。
