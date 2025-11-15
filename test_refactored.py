@@ -184,7 +184,7 @@ class TestSearchAPIClient:
         # Initially circuit should be closed
         assert client.circuit_breaker.state == "closed"
 
-        # Mock to always fail
+        # Mock to always fail with exceptions
         async def failing_request(*args, **kwargs):
             raise Exception("API Error")
 
@@ -200,6 +200,88 @@ class TestSearchAPIClient:
             assert client.circuit_breaker.state == "open"
 
             # Next request should fail immediately without hitting API
+            try:
+                await client.request({"engine": "google", "q": "test"})
+                assert False, "Should have raised circuit breaker exception"
+            except Exception as e:
+                assert "Circuit breaker is OPEN" in str(e)
+
+        await client.close()
+
+    async def test_circuit_breaker_resets_on_success(self):
+        """Test that failure count resets on successful requests in closed state."""
+        config = APIConfig(api_key="test_key", enable_cache=False, enable_metrics=False)
+        client = SearchAPIClient(config)
+
+        assert client.circuit_breaker.state == "closed"
+        assert client.circuit_breaker.failure_count == 0
+
+        # Simulate 4 failures (not enough to open circuit)
+        async def failing_request(*args, **kwargs):
+            raise Exception("API Error")
+
+        with patch.object(client, '_request_with_retry', new=failing_request):
+            for _ in range(4):
+                try:
+                    await client.request({"engine": "google", "q": "test"})
+                except Exception:
+                    pass
+
+        # Should have 4 failures but circuit still closed
+        assert client.circuit_breaker.failure_count == 4
+        assert client.circuit_breaker.state == "closed"
+
+        # Now make a successful request
+        async def successful_request(*args, **kwargs):
+            return {"results": ["success"]}
+
+        with patch.object(client, '_request_with_retry', new=successful_request):
+            result = await client.request({"engine": "google", "q": "test"})
+            assert "results" in result
+
+        # CRITICAL: Failure count should reset to 0 after success
+        assert client.circuit_breaker.failure_count == 0
+        assert client.circuit_breaker.state == "closed"
+
+        # Next failure should only count as 1, not 5
+        with patch.object(client, '_request_with_retry', new=failing_request):
+            try:
+                await client.request({"engine": "google", "q": "test"})
+            except Exception:
+                pass
+
+        assert client.circuit_breaker.failure_count == 1
+        assert client.circuit_breaker.state == "closed"  # Still closed
+
+        await client.close()
+
+    async def test_circuit_breaker_trips_on_error_responses(self):
+        """Test that circuit breaker trips on error responses (not just exceptions)."""
+        config = APIConfig(api_key="test_key", enable_cache=False, enable_metrics=False)
+        client = SearchAPIClient(config)
+
+        assert client.circuit_breaker.state == "closed"
+
+        # Mock to return error dict (like 4xx or exhausted retries)
+        async def error_response_request(*args, **kwargs):
+            return {
+                "error": "HTTP 400: Bad Request",
+                "type": "http_error",
+                "status_code": 400
+            }
+
+        with patch.object(client, '_request_with_retry', new=error_response_request):
+            # Make 5 requests that return errors (not exceptions)
+            for i in range(5):
+                result = await client.request({"engine": "google", "q": "test"})
+                assert "error" in result
+                print(f"Request {i+1}: failure_count = {client.circuit_breaker.failure_count}")
+
+            # Circuit should now be open due to error responses
+            assert client.circuit_breaker.state == "open"
+            assert client.circuit_breaker.failure_count == 5
+
+            # Next request should fail immediately
             try:
                 await client.request({"engine": "google", "q": "test"})
                 assert False, "Should have raised circuit breaker exception"
@@ -281,12 +363,32 @@ async def run_async_tests():
     print("Testing Circuit Breaker Integration")
     print("="*70)
 
+    test_client = TestSearchAPIClient()
+
+    # Test 1: Basic integration
     try:
-        test_client = TestSearchAPIClient()
         await test_client.test_circuit_breaker_integration()
         print("✓ Circuit breaker integration test passed")
     except Exception as e:
         print(f"✗ Circuit breaker integration test failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # Test 2: Success resets failure count
+    try:
+        await test_client.test_circuit_breaker_resets_on_success()
+        print("✓ Circuit breaker resets on success test passed")
+    except Exception as e:
+        print(f"✗ Circuit breaker resets on success test failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # Test 3: Error responses trip circuit breaker
+    try:
+        await test_client.test_circuit_breaker_trips_on_error_responses()
+        print("✓ Circuit breaker trips on error responses test passed")
+    except Exception as e:
+        print(f"✗ Circuit breaker trips on error responses test failed: {e}")
         import traceback
         traceback.print_exc()
 

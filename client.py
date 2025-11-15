@@ -291,16 +291,32 @@ class SearchAPIClient:
         try:
             result = await self._request_with_retry(params)
 
-            # Success - reset on half_open or keep closed
+            # Check if result is an error response (not an exception)
+            # This handles 4xx errors and exhausted retries that return error dicts
+            if isinstance(result, dict) and "error" in result:
+                # Treat error responses as failures for circuit breaker
+                self.circuit_breaker.failure_count += 1
+                self.circuit_breaker.last_failure_time = time.time()
+
+                if self.circuit_breaker.failure_count >= self.circuit_breaker.failure_threshold:
+                    self.circuit_breaker.state = "open"
+
+                return result  # Still return error to caller
+
+            # Success - reset failure count and update state
             if self.circuit_breaker.state == "half_open":
                 self.circuit_breaker.half_open_calls += 1
                 if self.circuit_breaker.half_open_calls >= self.circuit_breaker.half_open_max_calls:
                     self.circuit_breaker.state = "closed"
                     self.circuit_breaker.failure_count = 0
+            elif self.circuit_breaker.state == "closed":
+                # CRITICAL: Reset failure count on success to prevent accumulation
+                self.circuit_breaker.failure_count = 0
 
             return result
 
         except Exception as e:
+            # Handle exceptions (network errors, timeouts, etc.)
             self.circuit_breaker.failure_count += 1
             self.circuit_breaker.last_failure_time = time.time()
 
