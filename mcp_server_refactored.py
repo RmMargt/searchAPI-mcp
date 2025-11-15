@@ -19,9 +19,9 @@ from config import load_config, get_transport, ServerConfig
 from client import SearchAPIClient
 
 
-# Configure logging
+# Configure logging with default level (will be updated after config loads)
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.INFO,  # Default until config loads
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -30,7 +30,13 @@ logger = logging.getLogger(__name__)
 # Load configuration
 try:
     config = load_config()
-    logger.info("Configuration loaded successfully")
+
+    # Update logging level from config
+    log_level = getattr(logging, config.log_level)
+    logging.getLogger().setLevel(log_level)
+    logger.setLevel(log_level)
+
+    logger.info(f"Configuration loaded successfully (log_level: {config.log_level})")
 except Exception as e:
     logger.error(f"Failed to load configuration: {e}")
     raise
