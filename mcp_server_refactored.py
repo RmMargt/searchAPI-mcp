@@ -999,6 +999,44 @@ async def search_google_hotels_property(
 # Server Lifecycle
 # ============================================================================
 
+def cleanup_client():
+    """
+    Safely cleanup the HTTP client.
+
+    Handles the delicate case where an event loop may or may not be running.
+    This is necessary because mcp.run() may leave an active event loop.
+    """
+    import asyncio
+
+    try:
+        # Try to get the current event loop
+        loop = asyncio.get_event_loop()
+
+        # Check if loop is running
+        if loop.is_running():
+            # Loop is running - schedule cleanup as a task
+            # This happens when cleanup is called from within an async context
+            loop.create_task(api_client.close())
+            logger.info("Scheduled client cleanup in running event loop")
+        else:
+            # Loop exists but not running - run cleanup
+            loop.run_until_complete(api_client.close())
+            logger.info("Client closed using existing event loop")
+    except RuntimeError:
+        # No event loop exists or loop is closed
+        # Create a new one just for cleanup
+        try:
+            asyncio.run(api_client.close())
+            logger.info("Client closed using new event loop")
+        except RuntimeError as e:
+            # If even this fails, we're in a weird state
+            # Log and continue - don't crash during cleanup
+            logger.warning(f"Could not close client cleanly: {e}")
+    except Exception as e:
+        # Catch any other cleanup errors to prevent crashes during shutdown
+        logger.error(f"Error during client cleanup: {e}", exc_info=True)
+
+
 def main():
     """Main entry point for the MCP server."""
     try:
@@ -1015,9 +1053,8 @@ def main():
         logger.error(f"Server error: {e}", exc_info=True)
         raise
     finally:
-        # Cleanup
-        import asyncio
-        asyncio.run(api_client.close())
+        # Cleanup - use safe cleanup function that handles event loop state
+        cleanup_client()
         logger.info("Server stopped")
 
 
