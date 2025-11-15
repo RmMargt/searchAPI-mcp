@@ -161,12 +161,52 @@ class TestCircuitBreaker:
         assert cb.state == "open"
 
         # Next call should fail immediately
-        with pytest.raises(Exception, match="Circuit breaker is OPEN"):
-            await wrapped()
+        if PYTEST_AVAILABLE:
+            with pytest.raises(Exception, match="Circuit breaker is OPEN"):
+                await wrapped()
+        else:
+            # Manual check when pytest not available
+            try:
+                await wrapped()
+                assert False, "Should have raised exception when circuit is OPEN"
+            except Exception as e:
+                assert "Circuit breaker is OPEN" in str(e)
 
 
 class TestSearchAPIClient:
     """Test SearchAPI client functionality."""
+
+    async def test_circuit_breaker_integration(self):
+        """Test that circuit breaker is wired into request path."""
+        config = APIConfig(api_key="test_key", enable_cache=False, enable_metrics=False)
+        client = SearchAPIClient(config)
+
+        # Initially circuit should be closed
+        assert client.circuit_breaker.state == "closed"
+
+        # Mock to always fail
+        async def failing_request(*args, **kwargs):
+            raise Exception("API Error")
+
+        with patch.object(client, '_request_with_retry', new=failing_request):
+            # Make 5 failing requests to open circuit
+            for _ in range(5):
+                try:
+                    await client.request({"engine": "google", "q": "test"})
+                except Exception:
+                    pass
+
+            # Circuit should now be open
+            assert client.circuit_breaker.state == "open"
+
+            # Next request should fail immediately without hitting API
+            try:
+                await client.request({"engine": "google", "q": "test"})
+                assert False, "Should have raised circuit breaker exception"
+            except Exception as e:
+                assert "Circuit breaker is OPEN" in str(e)
+
+        await client.close()
 
     async def test_client_initialization(self):
         """Test client initializes with correct configuration."""
@@ -235,6 +275,22 @@ class TestSearchAPIClient:
         await client.close()
 
 
+async def run_async_tests():
+    """Run async tests."""
+    print("\n" + "="*70)
+    print("Testing Circuit Breaker Integration")
+    print("="*70)
+
+    try:
+        test_client = TestSearchAPIClient()
+        await test_client.test_circuit_breaker_integration()
+        print("✓ Circuit breaker integration test passed")
+    except Exception as e:
+        print(f"✗ Circuit breaker integration test failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def run_tests():
     """Run all tests."""
     print("Running SearchAPI MCP Server Tests...")
@@ -285,6 +341,12 @@ def run_tests():
         print("✓ Metrics latency percentiles test passed")
     except Exception as e:
         print(f"✗ Metrics test failed: {e}")
+
+    # Run async tests
+    try:
+        asyncio.run(run_async_tests())
+    except Exception as e:
+        print(f"✗ Async tests failed: {e}")
 
     print("\n" + "="*70)
     print("Test Summary")

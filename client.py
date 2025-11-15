@@ -226,7 +226,7 @@ class SearchAPIClient:
         Make API request with retry logic, caching, and error handling.
 
         Args:
-            params: Request parameters
+            params: Request parameters (WITHOUT api_key - will be added internally)
 
         Returns:
             API response dictionary
@@ -234,10 +234,7 @@ class SearchAPIClient:
         Raises:
             Exception: If request fails after all retries
         """
-        # Add API key to params
-        params = {**params, "api_key": self.config.api_key}
-
-        # Check cache first
+        # Check cache BEFORE adding API key (to avoid key rotation issues)
         if self.cache:
             cached = self.cache.get(params)
             if cached:
@@ -245,14 +242,18 @@ class SearchAPIClient:
                     self.metrics.record_request(latency=0, from_cache=True)
                 return cached
 
-        # Make request with retry logic
+        # Add API key to params for actual request
+        params_with_key = {**params, "api_key": self.config.api_key}
+
+        # Make request with retry logic wrapped in circuit breaker
         start_time = time.time()
 
         try:
-            response = await self._request_with_retry(params)
+            # Wire circuit breaker into request path
+            response = await self._request_with_circuit_breaker(params_with_key)
             latency = time.time() - start_time
 
-            # Cache successful response
+            # Cache successful response (using original params without API key)
             if self.cache and "error" not in response:
                 self.cache.set(params, response)
 
@@ -266,6 +267,47 @@ class SearchAPIClient:
             if self.metrics:
                 self.metrics.record_error(type(e).__name__)
             raise
+
+    async def _request_with_circuit_breaker(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Make request with circuit breaker protection.
+
+        Args:
+            params: Request parameters including API key
+
+        Returns:
+            API response dictionary
+
+        Raises:
+            Exception: If circuit is open or request fails
+        """
+        if self.circuit_breaker.state == "open":
+            if time.time() - self.circuit_breaker.last_failure_time > self.circuit_breaker.recovery_timeout:
+                self.circuit_breaker.state = "half_open"
+                self.circuit_breaker.half_open_calls = 0
+            else:
+                raise Exception("Circuit breaker is OPEN - service unavailable")
+
+        try:
+            result = await self._request_with_retry(params)
+
+            # Success - reset on half_open or keep closed
+            if self.circuit_breaker.state == "half_open":
+                self.circuit_breaker.half_open_calls += 1
+                if self.circuit_breaker.half_open_calls >= self.circuit_breaker.half_open_max_calls:
+                    self.circuit_breaker.state = "closed"
+                    self.circuit_breaker.failure_count = 0
+
+            return result
+
+        except Exception as e:
+            self.circuit_breaker.failure_count += 1
+            self.circuit_breaker.last_failure_time = time.time()
+
+            if self.circuit_breaker.failure_count >= self.circuit_breaker.failure_threshold:
+                self.circuit_breaker.state = "open"
+
+            raise e
 
     async def _request_with_retry(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Make HTTP request with exponential backoff retry."""

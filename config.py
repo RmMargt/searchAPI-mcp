@@ -4,8 +4,8 @@ Following FAST MCP best practices for externalized configuration.
 """
 import os
 from typing import Optional
-from pydantic import BaseModel, Field, field_validator
-from pydantic_settings import BaseSettings
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class APIConfig(BaseSettings):
@@ -104,10 +104,12 @@ class APIConfig(BaseSettings):
             raise ValueError(f"Log level must be one of {valid_levels}")
         return v_upper
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow"  # Allow extra fields for testing
+    )
 
 
 class ServerConfig(BaseModel):

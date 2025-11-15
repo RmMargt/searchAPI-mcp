@@ -147,8 +147,11 @@ async def get_current_time(
             "tomorrow": (now + timedelta(days=1)).strftime("%Y-%m-%d"),
             "next_week": (now + timedelta(days=7)).strftime("%Y-%m-%d"),
             "next_month": (now + timedelta(days=30)).strftime("%Y-%m-%d"),
-            "weekend": (now + timedelta((5 - now.weekday()) % 7)).strftime("%Y-%m-%d"),
-            "weekend_end": (now + timedelta((6 - now.weekday()) % 7 + 1)).strftime("%Y-%m-%d"),
+            # Next Friday: 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
+            # Days to Friday: (4 - current_day) % 7
+            "weekend": (now + timedelta(days=(4 - now.weekday()) % 7)).strftime("%Y-%m-%d"),
+            # Next Sunday: Days to Sunday: (6 - current_day) % 7
+            "weekend_end": (now + timedelta(days=(6 - now.weekday()) % 7)).strftime("%Y-%m-%d"),
         },
         "hotel_stay_suggestions": [
             {
