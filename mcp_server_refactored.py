@@ -1014,10 +1014,29 @@ def cleanup_client():
 
         # Check if loop is running
         if loop.is_running():
-            # Loop is running - schedule cleanup as a task
-            # This happens when cleanup is called from within an async context
-            loop.create_task(api_client.close())
-            logger.info("Scheduled client cleanup in running event loop")
+            # Loop is running - this shouldn't happen in finally block
+            # mcp.run() should have stopped the loop before returning
+            # Log warning and try to schedule cleanup anyway
+            logger.warning(
+                "Event loop still running during cleanup - this may indicate "
+                "incomplete shutdown by mcp.run(). Attempting cleanup..."
+            )
+
+            # Create task and try to give it time to complete
+            task = loop.create_task(api_client.close())
+
+            # Try to run the loop briefly to let cleanup complete
+            # This is a best-effort attempt
+            try:
+                # Run for a short time to allow cleanup to start
+                loop.run_until_complete(asyncio.wait_for(task, timeout=2.0))
+                logger.info("Client cleanup completed in running event loop")
+            except asyncio.TimeoutError:
+                logger.warning("Client cleanup timed out - resources may not be fully released")
+            except RuntimeError as e:
+                # If we can't run the loop (already running in another thread?),
+                # we've done our best by creating the task
+                logger.warning(f"Could not await cleanup task: {e}")
         else:
             # Loop exists but not running - run cleanup
             loop.run_until_complete(api_client.close())

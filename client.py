@@ -102,13 +102,17 @@ class CacheManager:
 
     def set(self, params: Dict[str, Any], response: Dict[str, Any]) -> None:
         """Cache response with TTL."""
-        # Evict oldest if cache is full
-        if len(self.cache) >= self.max_size:
+        key = self._generate_key(params)
+
+        # Only evict if cache is full AND we're adding a NEW key
+        # Don't evict when updating an existing key
+        if key not in self.cache and len(self.cache) >= self.max_size:
+            # Cache is full and this is a new key - evict oldest
             oldest_key = min(self.access_times.keys(), key=lambda k: self.access_times[k])
             del self.cache[oldest_key]
             del self.access_times[oldest_key]
 
-        key = self._generate_key(params)
+        # Set the cache entry (new or update)
         self.cache[key] = response
         self.access_times[key] = time.time()
 

@@ -96,6 +96,56 @@ class TestCacheManager:
         assert cache.get({"q": "2"}) is not None
         assert cache.get({"q": "3"}) is not None
 
+    def test_cache_update_doesnt_evict(self):
+        """Test that updating existing keys doesn't trigger eviction."""
+        cache = CacheManager(ttl=3600, max_size=3)
+
+        # Fill cache to max capacity
+        cache.set({"q": "1"}, {"result": "1"})
+        cache.set({"q": "2"}, {"result": "2"})
+        cache.set({"q": "3"}, {"result": "3"})
+
+        assert len(cache.cache) == 3
+
+        # Update existing key - should NOT evict anything
+        cache.set({"q": "2"}, {"result": "2_updated"})
+
+        # Cache should still be at max capacity
+        assert len(cache.cache) == 3
+        assert cache.get({"q": "1"}) is not None
+        assert cache.get({"q": "2"})["result"] == "2_updated"
+        assert cache.get({"q": "3"}) is not None
+
+        # Update another existing key - still no eviction
+        cache.set({"q": "1"}, {"result": "1_updated"})
+
+        assert len(cache.cache) == 3
+        assert cache.get({"q": "1"})["result"] == "1_updated"
+        assert cache.get({"q": "2"})["result"] == "2_updated"
+        assert cache.get({"q": "3"}) is not None
+
+    def test_cache_stays_at_capacity(self):
+        """Test that cache can maintain full capacity after updates."""
+        cache = CacheManager(ttl=3600, max_size=5)
+
+        # Fill cache
+        for i in range(5):
+            cache.set({"q": str(i)}, {"result": str(i)})
+
+        assert len(cache.cache) == 5
+
+        # Update all entries multiple times
+        for _ in range(10):
+            for i in range(5):
+                cache.set({"q": str(i)}, {"result": f"{i}_updated"})
+
+        # Cache should still be at max capacity
+        assert len(cache.cache) == 5
+
+        # All entries should still be accessible
+        for i in range(5):
+            assert cache.get({"q": str(i)}) is not None
+
 
 class TestMetricsCollector:
     """Test metrics collection."""
@@ -423,6 +473,12 @@ def run_tests():
 
         test_cache.test_cache_max_size_eviction()
         print("✓ Cache eviction test passed")
+
+        test_cache.test_cache_update_doesnt_evict()
+        print("✓ Cache update without eviction test passed")
+
+        test_cache.test_cache_stays_at_capacity()
+        print("✓ Cache maintains capacity test passed")
     except Exception as e:
         print(f"✗ Cache test failed: {e}")
 
