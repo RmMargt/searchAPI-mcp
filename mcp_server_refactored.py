@@ -1016,27 +1016,33 @@ def cleanup_client():
         if loop.is_running():
             # Loop is running - this shouldn't happen in finally block
             # mcp.run() should have stopped the loop before returning
-            # Log warning and try to schedule cleanup anyway
+            # This indicates incomplete shutdown by mcp.run()
             logger.warning(
-                "Event loop still running during cleanup - this may indicate "
-                "incomplete shutdown by mcp.run(). Attempting cleanup..."
+                "Event loop still running during cleanup - this indicates "
+                "incomplete shutdown by mcp.run(). Cannot perform async cleanup "
+                "from synchronous context while loop is running."
             )
 
-            # Create task and try to give it time to complete
-            task = loop.create_task(api_client.close())
+            # We CANNOT call run_until_complete() on a running loop
+            # That would raise: RuntimeError: This event loop is already running
+            #
+            # Our options are limited:
+            # 1. Schedule cleanup task (fire-and-forget) - unreliable
+            # 2. Try to stop the loop - risky and may break mcp.run()
+            # 3. Accept that cleanup won't happen - best option
+            #
+            # We choose option 3 with clear logging
+            logger.warning(
+                "Skipping async cleanup because event loop is running. "
+                "Resources may not be fully released. This is a limitation of "
+                "the MCP framework's event loop management."
+            )
 
-            # Try to run the loop briefly to let cleanup complete
-            # This is a best-effort attempt
-            try:
-                # Run for a short time to allow cleanup to start
-                loop.run_until_complete(asyncio.wait_for(task, timeout=2.0))
-                logger.info("Client cleanup completed in running event loop")
-            except asyncio.TimeoutError:
-                logger.warning("Client cleanup timed out - resources may not be fully released")
-            except RuntimeError as e:
-                # If we can't run the loop (already running in another thread?),
-                # we've done our best by creating the task
-                logger.warning(f"Could not await cleanup task: {e}")
+            # Note: We could try loop.stop() but that's dangerous:
+            # - May break mcp.run()'s shutdown sequence
+            # - No guarantee cleanup would complete
+            # - Could cause other issues
+
         else:
             # Loop exists but not running - run cleanup
             loop.run_until_complete(api_client.close())
