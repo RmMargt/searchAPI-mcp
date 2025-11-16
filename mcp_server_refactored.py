@@ -504,6 +504,69 @@ async def search_google_maps(
 
 
 @mcp.tool()
+async def search_google_maps_place(
+    place_id: Optional[str] = None,
+    data_id: Optional[str] = None,
+    google_domain: str = "google.com",
+    hl: str = "en"
+) -> Dict[str, Any]:
+    """
+    Get detailed information for a specific Google Maps place.
+
+    Retrieve comprehensive place data including:
+    - Basic information (name, address, phone, website)
+    - Ratings and reviews summary
+    - Photos and images
+    - Opening hours
+    - Amenities and features
+    - Popular times
+    - User questions and answers
+    - Nearby places
+
+    Args:
+        place_id: Google Maps place ID (required if data_id not provided)
+        data_id: Alternative place identifier (required if place_id not provided)
+        google_domain: Google domain to use (default: "google.com")
+        hl: Language code for results (default: "en")
+
+    Returns:
+        Dictionary containing:
+        - place_info: Complete place details
+        - ratings: Review statistics and histogram
+        - photos: Image gallery
+        - hours: Opening hours and popular times
+        - amenities: Features and services
+        - reviews_link: Link to full reviews
+
+    Examples:
+        - search_google_maps_place(place_id="ChIJN1t_tDeuEmsRUsoyG83frY4")
+        - search_google_maps_place(data_id="0x89c259a9b3117469:0xd134e199a405a163")
+
+    Notes:
+        - Either place_id or data_id must be provided
+        - Get place_id from search_google_maps results
+    """
+    if not place_id and not data_id:
+        return {
+            "error": "Either 'place_id' or 'data_id' must be provided",
+            "type": "validation_error"
+        }
+
+    params = {
+        "engine": "google_maps_place",
+        "google_domain": google_domain,
+        "hl": hl
+    }
+
+    if place_id:
+        params["place_id"] = place_id
+    elif data_id:
+        params["data_id"] = data_id
+
+    return await api_client.request(params)
+
+
+@mcp.tool()
 async def search_google_maps_reviews(
     place_id: Optional[str] = None,
     data_id: Optional[str] = None,
@@ -570,6 +633,94 @@ async def search_google_maps_reviews(
         "hl": hl,
         "gl": gl,
         "reviews_limit": reviews_limit
+    }
+
+    for key, value in optional_params.items():
+        if value is not None:
+            params[key] = value
+
+    return await api_client.request(params)
+
+
+# ============================================================================
+# Google Events Tools
+# ============================================================================
+
+@mcp.tool()
+async def search_google_events(
+    q: str,
+    location: Optional[str] = None,
+    uule: Optional[str] = None,
+    google_domain: str = "google.com",
+    gl: str = "us",
+    hl: str = "en",
+    chips: Optional[str] = None,
+    page: str = "1"
+) -> Dict[str, Any]:
+    """
+    Search Google Events for concerts, conferences, festivals, and activities.
+
+    Find local and global events including:
+    - Concerts and music events
+    - Conferences and meetups
+    - Sports events
+    - Festivals and celebrations
+    - Virtual events
+    - Exhibitions and shows
+
+    Args:
+        q: Search query (e.g., "concerts tonight", "tech conferences in San Francisco") - required
+        location: Location name for localized results (e.g., "New York, NY")
+        uule: Google's encoded location parameter
+        google_domain: Google domain to use (default: "google.com")
+        gl: Country code (default: "us")
+        hl: Language code (default: "en")
+        chips: Event filters - date ("today", "tomorrow", "week", "weekend", "month")
+               or type (e.g., "Virtual-Event")
+        page: Page number for pagination (default: "1")
+
+    Returns:
+        Dictionary containing:
+        - events: Array of event objects with details
+        - search_metadata: Request metadata
+        - search_parameters: Parameters used
+
+    Event object includes:
+        - title: Event name
+        - date: Event date/time information
+        - duration: Event duration
+        - address: Event location address
+        - location_name: Venue name
+        - description: Event description
+        - thumbnail: Event image
+        - link: Event details URL
+        - venue: Venue details with rating and reviews
+        - offers: Ticket purchasing options
+
+    Examples:
+        - search_google_events(q="concerts in New York")
+        - search_google_events(q="tech conferences", location="San Francisco, CA")
+        - search_google_events(q="music festivals", chips="weekend")
+        - search_google_events(q="virtual events", chips="Virtual-Event")
+
+    Notes:
+        - Use chips parameter to filter by date or event type
+        - Results include both physical and virtual events
+        - Venue information includes ratings and review counts
+    """
+    params = {
+        "engine": "google_events",
+        "q": q,
+        "google_domain": google_domain,
+        "gl": gl,
+        "hl": hl,
+        "page": page
+    }
+
+    optional_params = {
+        "location": location,
+        "uule": uule,
+        "chips": chips
     }
 
     for key, value in optional_params.items():
@@ -816,6 +967,176 @@ async def search_google_flights_calendar(
         "gl": gl, "hl": hl, "currency": currency,
         "adults": adults, "children": children,
         "travel_class": travel_class, "stops": stops
+    }
+
+    for key, value in optional_params.items():
+        if value is not None:
+            params[key] = value
+
+    return await api_client.request(params)
+
+
+@mcp.tool()
+async def search_google_flights_location_search(
+    q: str,
+    gl: str = "us",
+    hl: str = "en"
+) -> Dict[str, Any]:
+    """
+    Search for airport codes and locations for flight booking.
+
+    Provides autocomplete suggestions for airports and cities based on partial input.
+    Useful for finding correct airport codes before searching for flights.
+
+    Args:
+        q: Search query - partial airport name, city name, or airport code (required)
+           Examples: "New York", "JFK", "Los Angeles International"
+        gl: Country code (default: "us")
+        hl: Language code (default: "en")
+
+    Returns:
+        Dictionary containing:
+        - results: Array of location suggestions
+        - search_metadata: Request metadata
+
+    Result object includes:
+        - airport_code: IATA airport code (e.g., "JFK")
+        - title: Airport and city name
+        - context: Geographic context (state, country)
+        - kgmid: Knowledge Graph ID for precise location
+
+    Examples:
+        - search_google_flights_location_search(q="New York")
+        - search_google_flights_location_search(q="JFK")
+        - search_google_flights_location_search(q="Tokyo")
+        - search_google_flights_location_search(q="Heathrow")
+
+    Notes:
+        - Returns multiple matching airports/cities
+        - Use airport_code in search_google_flights
+        - Use kgmid for precise location identification
+    """
+    params = {
+        "engine": "google_flights_location_search",
+        "q": q,
+        "gl": gl,
+        "hl": hl
+    }
+
+    return await api_client.request(params)
+
+
+@mcp.tool()
+async def search_google_travel_explore(
+    departure_id: str,
+    arrival_id: Optional[str] = None,
+    time_period: Optional[str] = None,
+    gl: str = "us",
+    hl: str = "en-US",
+    currency: str = "USD",
+    travel_mode: str = "all",
+    travel_class: Optional[str] = None,
+    interests: Optional[str] = None,
+    stops: Optional[str] = None,
+    max_price: Optional[str] = None,
+    max_flight_duration: Optional[str] = None,
+    carry_on_bags: Optional[str] = None,
+    included_airlines: Optional[str] = None,
+    adults: str = "1",
+    children: Optional[str] = None,
+    infants_in_seat: Optional[str] = None,
+    infants_on_lap: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Explore travel destinations and find inspiration for trips.
+
+    Discover travel options without specifying exact routes or dates.
+    Perfect for travel planning and destination discovery.
+
+    Args:
+        departure_id: Departure airport code or location identifier (e.g., "JFK" or "/m/02_286") - required
+        arrival_id: Destination location identifier or bounding box coordinates
+                   Defaults to "/m/02j71" (anywhere on Earth)
+                   Can use bounding box: "[[min_lon,min_lat],[max_lon,max_lat]]"
+        time_period: Travel period - round-trip options:
+                    - "one_week_trip_in_the_next_six_months"
+                    - "two_week_trip_in_december" (or other months)
+                    - "weekend_trip_in_january"
+                    - Custom dates: "YYYY-MM-DD"
+        gl: Country code (default: "us")
+        hl: Language code (default: "en-US")
+        currency: Currency code (default: "USD")
+        travel_mode: "all" (default) or "flights_only"
+        travel_class: "economy", "premium_economy", "business", "first_class"
+        interests: Destination interests - "popular", "outdoors", "beaches", "museums", "history", "skiing"
+        stops: Flight stops filter - "any", "nonstop", "one_stop_or_fewer", "two_stops_or_fewer"
+        max_price: Maximum ticket price
+        max_flight_duration: Maximum flight duration in minutes
+        carry_on_bags: Number of carry-on bags
+        included_airlines: Airline alliances - "ONEWORLD", "SKYTEAM", "STAR_ALLIANCE"
+        adults: Number of adults (default: "1", max 9 total passengers)
+        children: Number of children
+        infants_in_seat: Number of infants in seat
+        infants_on_lap: Number of infants on lap
+
+    Returns:
+        Dictionary containing:
+        - destinations: Array of destination suggestions
+        - search_metadata: Request metadata
+
+    Destination object includes:
+        - name: Destination name
+        - kgmid: Location identifier
+        - primary_airport: Airport code
+        - country: Country name
+        - coordinates: [latitude, longitude]
+        - distance: Distance from departure
+        - avg_cost_per_night: Accommodation cost estimate
+        - outbound_date: Suggested departure date
+        - return_date: Suggested return date
+        - image: Destination photo
+        - flight: Flight details with price, stops, duration, airline
+
+    Examples:
+        - search_google_travel_explore(departure_id="JFK")
+        - search_google_travel_explore(departure_id="JFK", interests="beaches")
+        - search_google_travel_explore(departure_id="/m/02_286", time_period="two_week_trip_in_december")
+        - search_google_travel_explore(departure_id="LAX", arrival_id="[[89.81,-11.38],[133.94,16.77]]")
+
+    Notes:
+        - Great for discovering new destinations
+        - Provides cost estimates for flights and hotels
+        - Can filter by interests and travel preferences
+        - Use location identifiers (kgmid) for precise targeting
+    """
+    params = {
+        "engine": "google_travel_explore",
+        "departure_id": departure_id,
+        "gl": gl,
+        "hl": hl,
+        "currency": currency,
+        "travel_mode": travel_mode,
+        "adults": adults
+    }
+
+    # Set default arrival_id if not provided
+    if arrival_id:
+        params["arrival_id"] = arrival_id
+    else:
+        params["arrival_id"] = "/m/02j71"  # Earth (anywhere)
+
+    optional_params = {
+        "time_period": time_period,
+        "travel_class": travel_class,
+        "interests": interests,
+        "stops": stops,
+        "max_price": max_price,
+        "max_flight_duration": max_flight_duration,
+        "carry_on_bags": carry_on_bags,
+        "included_airlines": included_airlines,
+        "children": children,
+        "infants_in_seat": infants_in_seat,
+        "infants_on_lap": infants_on_lap
     }
 
     for key, value in optional_params.items():

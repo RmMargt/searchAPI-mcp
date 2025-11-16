@@ -23,7 +23,11 @@ A production-ready Model Context Protocol (MCP) server providing comprehensive s
 - **Google Videos** - Video search with filtering by duration, source, and upload time
 - **Google AI Mode** - AI-generated overviews with cited sources and structured content
 - **Google Maps** - Places, businesses, reviews, and location details
+- **Google Maps Place** - Detailed information for specific locations (hours, photos, amenities)
+- **Google Events** - Find concerts, conferences, festivals, and local activities
 - **Google Flights** - Flight search with comprehensive filtering and price calendars
+- **Google Flights Location Search** - Airport code lookup and autocomplete
+- **Google Travel Explore** - Discover destinations and travel inspiration
 - **Google Hotels** - Accommodation search with amenities, ratings, and price filters
 
 ### 🏗️ Production-Ready Architecture
@@ -443,6 +447,22 @@ search_google_maps(
 )
 ```
 
+#### `search_google_maps_place`
+Get detailed information for a specific place.
+
+**Parameters:**
+- `place_id` (required if no data_id) - Google Maps place ID
+- `data_id` - Alternative place identifier
+- `google_domain` - Google domain (default: "google.com")
+- `hl` - Language code (default: "en")
+
+**Example:**
+```python
+search_google_maps_place(
+    place_id="ChIJN1t_tDeuEmsRUsoyG83frY4"
+)
+```
+
 #### `search_google_maps_reviews`
 Get reviews for a specific place.
 
@@ -458,6 +478,30 @@ search_google_maps_reviews(
     place_id="ChIJN1t_tDeuEmsRUsoyG83frY4",
     sort_by="newest",
     rating="5"
+)
+```
+
+---
+
+### Google Events
+
+#### `search_google_events`
+Search for events, concerts, conferences, and activities.
+
+**Parameters:**
+- `q` (required) - Search query (e.g., "concerts in NYC", "tech conferences")
+- `location` - Location name for localized results
+- `chips` - Date filter ("today", "tomorrow", "week", "weekend", "month") or event type
+- `gl` - Country code (default: "us")
+- `hl` - Language code (default: "en")
+- `page` - Page number (default: "1")
+
+**Example:**
+```python
+search_google_events(
+    q="music festivals in Austin",
+    chips="weekend",
+    location="Austin, TX"
 )
 ```
 
@@ -511,6 +555,42 @@ search_google_flights_calendar(
     arrival_id="NYC",
     outbound_date="2025-12-01",
     return_date="2025-12-08"
+)
+```
+
+#### `search_google_flights_location_search`
+Search for airport codes and locations.
+
+**Parameters:**
+- `q` (required) - Search query (airport name, city, or code)
+- `gl` - Country code (default: "us")
+- `hl` - Language code (default: "en")
+
+**Example:**
+```python
+search_google_flights_location_search(
+    q="Tokyo"
+)
+```
+
+#### `search_google_travel_explore`
+Explore travel destinations and find inspiration.
+
+**Parameters:**
+- `departure_id` (required) - Departure airport code or location
+- `arrival_id` - Destination (defaults to anywhere)
+- `time_period` - Travel period (e.g., "two_week_trip_in_december")
+- `interests` - Filter by interests: "popular", "outdoors", "beaches", "museums", "history", "skiing"
+- `travel_class` - "economy", "premium_economy", "business", "first_class"
+- `adults` - Number of adults (default: "1")
+- `currency` - Currency code (default: "USD")
+
+**Example:**
+```python
+search_google_travel_explore(
+    departure_id="JFK",
+    interests="beaches",
+    time_period="two_week_trip_in_december"
 )
 ```
 
@@ -569,15 +649,22 @@ search_google_hotels_property(
 
 ## Usage Examples
 
-### Example 1: Plan a Trip
+### Example 1: Discover and Plan a Trip
 
 ```python
-# 1. Get current date and travel dates
+# 1. Explore destinations from New York
+destinations = search_google_travel_explore(
+    departure_id="JFK",
+    interests="beaches",
+    time_period="two_week_trip_in_december"
+)
+
+# 2. Get current date and travel dates
 dates = get_current_time(return_future_dates=True, future_days=30)
 check_in = dates["travel_dates"]["next_week"]
 check_out = dates["travel_dates"]["next_month"]
 
-# 2. Search for flights
+# 3. Search for flights
 flights = search_google_flights(
     departure_id="JFK",
     arrival_id="CDG",
@@ -588,7 +675,7 @@ flights = search_google_flights(
     adults="2"
 )
 
-# 3. Search for hotels
+# 4. Search for hotels
 hotels = search_google_hotels(
     q="hotels in Paris",
     check_in_date=check_in,
@@ -598,9 +685,20 @@ hotels = search_google_hotels(
     amenities="wifi,breakfast"
 )
 
-# 4. Find nearby restaurants
+# 5. Find nearby restaurants
 restaurants = search_google_maps(
     query="restaurants near Eiffel Tower"
+)
+
+# 6. Get detailed place info
+place_details = search_google_maps_place(
+    place_id=restaurants["local_results"][0]["place_id"]
+)
+
+# 7. Find local events
+events = search_google_events(
+    q="concerts in Paris",
+    chips="weekend"
 )
 ```
 
@@ -818,7 +916,15 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## Changelog
 
-### v1.0.0 (Current)
+### v1.1.0 (Current)
+- ✅ **New:** Google Maps Place API - Detailed place information
+- ✅ **New:** Google Events API - Event and activity search
+- ✅ **New:** Google Travel Explore API - Destination discovery
+- ✅ **New:** Google Flights Location Search API - Airport lookup
+- ✅ Enhanced tourism and travel research capabilities
+- ✅ Comprehensive travel planning workflow support
+
+### v1.0.0
 - ✅ Production-ready architecture with FastMCP
 - ✅ Connection pooling and retry logic
 - ✅ Response caching with TTL
