@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/rmmargt-searchapi-mcp-badge.png)](https://mseep.ai/app/rmmargt-searchapi-mcp)
+
 # SearchAPI MCP Server
 
 <div align="center">
