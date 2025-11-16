@@ -66,16 +66,19 @@ def test_google_flights(api_key: str):
     print("\n3️⃣  Testing Google Flights...")
     url = "https://www.searchapi.io/api/v1/search"
 
-    # Get future date
+    # Get future dates
     from datetime import timedelta
-    future_date = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
+    outbound = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
+    return_date = (datetime.now() + timedelta(days=37)).strftime("%Y-%m-%d")
 
     params = {
         "engine": "google_flights",
         "departure_id": "JFK",
         "arrival_id": "LAX",
-        "outbound_date": future_date,
-        "type": "1",  # one way
+        "outbound_date": outbound,
+        "return_date": return_date,
+        "flight_type": "round_trip",  # Correct parameter name
+        "adults": "1",
         "api_key": api_key
     }
 
@@ -158,6 +161,34 @@ def test_google_events(api_key: str):
         return False
 
 
+def test_google_ai_mode(api_key: str):
+    """Test Google AI Mode"""
+    print("\n6️⃣  Testing Google AI Mode...")
+    url = "https://www.searchapi.io/api/v1/search"
+    params = {
+        "engine": "google_ai_mode",
+        "q": "What is Python programming language?",
+        "api_key": api_key
+    }
+
+    try:
+        with httpx.Client(timeout=30.0) as client:
+            response = client.get(url, params=params)
+
+        if response.status_code == 200:
+            data = response.json()
+            has_ai_overview = 'text_blocks' in data or 'markdown' in data
+            ref_count = len(data.get('reference_links', []))
+            print(f"   ✅ Google AI Mode: AI overview available, {ref_count} references")
+            return True
+        else:
+            print(f"   ❌ Failed: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"   ❌ Error: {e}")
+        return False
+
+
 if __name__ == "__main__":
     import sys
 
@@ -180,6 +211,7 @@ if __name__ == "__main__":
     results.append(("Google Flights", test_google_flights(api_key)))
     results.append(("Google Hotels", test_google_hotels(api_key)))
     results.append(("Google Events", test_google_events(api_key)))
+    results.append(("Google AI Mode", test_google_ai_mode(api_key)))
 
     print(f"\n{'='*60}")
     print("Test Summary:")
