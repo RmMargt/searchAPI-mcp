@@ -1323,6 +1323,133 @@ async def search_google_hotels_property(
 
 
 # ============================================================================
+# Google Shopping Tools
+# ============================================================================
+
+@mcp.tool()
+async def search_google_shopping(
+    q: str,
+    device: str = "desktop",
+    google_domain: str = "google.com",
+    gl: str = "us",
+    hl: str = "en",
+    location: Optional[str] = None,
+    uule: Optional[str] = None,
+    shoprs: Optional[str] = None,
+    price_min: Optional[str] = None,
+    price_max: Optional[str] = None,
+    is_on_sale: Optional[bool] = None,
+    is_small_business: Optional[bool] = None,
+    is_free_delivery: Optional[bool] = None,
+    sort_by: Optional[str] = None,
+    condition: Optional[str] = None,
+    include_favicon: Optional[bool] = None,
+    include_base_images: Optional[bool] = None,
+    page: Optional[int] = None,
+    zero_retention: Optional[bool] = None
+) -> Dict[str, Any]:
+    """
+    Search Google Shopping for product listings and e-commerce results.
+
+    Comprehensive Google Shopping search with support for:
+    - Product search results with prices and ratings
+    - Shopping ads and sponsored listings
+    - Price filtering and range searches
+    - Product condition filtering (new/used)
+    - Free delivery options
+    - Small business seller filtering
+    - Sale item filtering
+    - Sorting by price, rating, and other criteria
+    - Popular products related to search
+
+    Args:
+        q: Search query (required) - Examples: "PS5", "iPhone", "laptop under $1000"
+        device: Device type ("desktop" or "mobile")
+        google_domain: Google domain to use (default: "google.com")
+        gl: Country code for results (default: "us")
+        hl: Language code (default: "en")
+        location: Location name for localized results (e.g., "New York, NY")
+        uule: Google's encoded location parameter (auto-generated if location provided)
+        shoprs: Encoded shop result filters for strict filtering
+        price_min: Minimum price filter (e.g., "2.50" for $2.50+)
+        price_max: Maximum price filter (e.g., "100" for $100 or less)
+        is_on_sale: Filter for products on sale (true/false)
+        is_small_business: Show only small business sellers (true/false)
+        is_free_delivery: Show only products with free delivery (true/false)
+        sort_by: Sort order - "price_low_to_high", "price_high_to_low", "rating_high_to_low"
+        condition: Product condition - "new", "used"
+        include_favicon: Include seller favicons in results (true/false)
+        include_base_images: Include base64-encoded product images (true/false)
+        page: Page number for pagination (default: 1)
+        zero_retention: Disable all logging for compliance (true/false)
+
+    Returns:
+        Dictionary containing:
+        - shopping_results: Array of product listings with prices, ratings, sellers
+        - shopping_ads: Sponsored product advertisements
+        - popular_products: Popular items related to search
+        - filters: Available filters for refining search
+        - search_metadata: Request metadata and response information
+
+    Product listing includes:
+        - title: Product name
+        - price: Current price
+        - rating: Star rating (if available)
+        - reviews: Review count (if available)
+        - thumbnail: Product image URL
+        - link: Product page URL
+        - source: Seller/merchant name
+        - delivery_info: Shipping details
+        - condition: Product condition (new/used)
+        - is_on_sale: Whether item is on sale
+
+    Examples:
+        - search_google_shopping(q="iPhone 15")
+        - search_google_shopping(q="laptop", price_max="1000", is_free_delivery=True)
+        - search_google_shopping(q="PS5", condition="new", sort_by="price_low_to_high")
+        - search_google_shopping(q="Nike shoes", location="New York, NY", is_on_sale=True)
+        - search_google_shopping(q="tshirt under $30", price_min="10", gl="us", hl="en")
+
+    Notes:
+        - Use price_min/price_max with currency values (e.g., "25.99" for $25.99+)
+        - Filters like is_on_sale, is_small_business, is_free_delivery can be combined
+        - shoprs parameter takes priority over individual filter parameters
+        - q parameter supports natural language queries (e.g., "under $30", "on sale")
+    """
+    params = {
+        "engine": "google_shopping",
+        "q": q,
+        "device": device,
+        "google_domain": google_domain,
+        "gl": gl,
+        "hl": hl
+    }
+
+    optional_params = {
+        "location": location,
+        "uule": uule,
+        "shoprs": shoprs,
+        "price_min": price_min,
+        "price_max": price_max,
+        "is_on_sale": str(is_on_sale).lower() if is_on_sale is not None else None,
+        "is_small_business": str(is_small_business).lower() if is_small_business is not None else None,
+        "is_free_delivery": str(is_free_delivery).lower() if is_free_delivery is not None else None,
+        "sort_by": sort_by,
+        "condition": condition,
+        "include_favicon": str(include_favicon).lower() if include_favicon is not None else None,
+        "include_base_images": str(include_base_images).lower() if include_base_images is not None else None,
+        "page": str(page) if page is not None else None,
+        "zero_retention": str(zero_retention).lower() if zero_retention is not None else None
+    }
+
+    for key, value in optional_params.items():
+        if value is not None:
+            params[key] = value
+
+    return await api_client.request(params)
+
+
+# ============================================================================
 # Server Lifecycle
 # ============================================================================
 
