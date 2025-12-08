@@ -1323,6 +1323,501 @@ async def search_google_hotels_property(
 
 
 # ============================================================================
+# Google Shopping Tools
+# ============================================================================
+
+@mcp.tool()
+async def search_google_shopping(
+    q: str,
+    device: str = "desktop",
+    google_domain: str = "google.com",
+    gl: str = "us",
+    hl: str = "en",
+    location: Optional[str] = None,
+    uule: Optional[str] = None,
+    shoprs: Optional[str] = None,
+    price_min: Optional[str] = None,
+    price_max: Optional[str] = None,
+    is_on_sale: Optional[bool] = None,
+    is_small_business: Optional[bool] = None,
+    is_free_delivery: Optional[bool] = None,
+    sort_by: Optional[str] = None,
+    condition: Optional[str] = None,
+    include_favicon: Optional[bool] = None,
+    include_base_images: Optional[bool] = None,
+    page: Optional[int] = None,
+    zero_retention: Optional[bool] = None
+) -> Dict[str, Any]:
+    """
+    Search Google Shopping for product listings and e-commerce results.
+
+    Comprehensive Google Shopping search with support for:
+    - Product search results with prices and ratings
+    - Shopping ads and sponsored listings
+    - Price filtering and range searches
+    - Product condition filtering (new/used)
+    - Free delivery options
+    - Small business seller filtering
+    - Sale item filtering
+    - Sorting by price, rating, and other criteria
+    - Popular products related to search
+
+    Args:
+        q: Search query (required) - Examples: "PS5", "iPhone", "laptop under $1000"
+        device: Device type ("desktop" or "mobile")
+        google_domain: Google domain to use (default: "google.com")
+        gl: Country code for results (default: "us")
+        hl: Language code (default: "en")
+        location: Location name for localized results (e.g., "New York, NY")
+        uule: Google's encoded location parameter (auto-generated if location provided)
+        shoprs: Encoded shop result filters for strict filtering
+        price_min: Minimum price filter (e.g., "2.50" for $2.50+)
+        price_max: Maximum price filter (e.g., "100" for $100 or less)
+        is_on_sale: Filter for products on sale (true/false)
+        is_small_business: Show only small business sellers (true/false)
+        is_free_delivery: Show only products with free delivery (true/false)
+        sort_by: Sort order - "price_low_to_high", "price_high_to_low", "rating_high_to_low"
+        condition: Product condition - "new", "used"
+        include_favicon: Include seller favicons in results (true/false)
+        include_base_images: Include base64-encoded product images (true/false)
+        page: Page number for pagination (default: 1)
+        zero_retention: Disable all logging for compliance (true/false)
+
+    Returns:
+        Dictionary containing:
+        - shopping_results: Array of product listings with prices, ratings, sellers
+        - shopping_ads: Sponsored product advertisements
+        - popular_products: Popular items related to search
+        - filters: Available filters for refining search
+        - search_metadata: Request metadata and response information
+
+    Product listing includes:
+        - title: Product name
+        - price: Current price
+        - rating: Star rating (if available)
+        - reviews: Review count (if available)
+        - thumbnail: Product image URL
+        - link: Product page URL
+        - source: Seller/merchant name
+        - delivery_info: Shipping details
+        - condition: Product condition (new/used)
+        - is_on_sale: Whether item is on sale
+
+    Examples:
+        - search_google_shopping(q="iPhone 15")
+        - search_google_shopping(q="laptop", price_max="1000", is_free_delivery=True)
+        - search_google_shopping(q="PS5", condition="new", sort_by="price_low_to_high")
+        - search_google_shopping(q="Nike shoes", location="New York, NY", is_on_sale=True)
+        - search_google_shopping(q="tshirt under $30", price_min="10", gl="us", hl="en")
+
+    Notes:
+        - Use price_min/price_max with currency values (e.g., "25.99" for $25.99+)
+        - Filters like is_on_sale, is_small_business, is_free_delivery can be combined
+        - shoprs parameter takes priority over individual filter parameters
+        - q parameter supports natural language queries (e.g., "under $30", "on sale")
+    """
+    params = {
+        "engine": "google_shopping",
+        "q": q,
+        "device": device,
+        "google_domain": google_domain,
+        "gl": gl,
+        "hl": hl
+    }
+
+    optional_params = {
+        "location": location,
+        "uule": uule,
+        "shoprs": shoprs,
+        "price_min": price_min,
+        "price_max": price_max,
+        "is_on_sale": str(is_on_sale).lower() if is_on_sale is not None else None,
+        "is_small_business": str(is_small_business).lower() if is_small_business is not None else None,
+        "is_free_delivery": str(is_free_delivery).lower() if is_free_delivery is not None else None,
+        "sort_by": sort_by,
+        "condition": condition,
+        "include_favicon": str(include_favicon).lower() if include_favicon is not None else None,
+        "include_base_images": str(include_base_images).lower() if include_base_images is not None else None,
+        "page": str(page) if page is not None else None,
+        "zero_retention": str(zero_retention).lower() if zero_retention is not None else None
+    }
+
+    for key, value in optional_params.items():
+        if value is not None:
+            params[key] = value
+
+    return await api_client.request(params)
+
+
+# ============================================================================
+# Google Shopping - Additional Tools (Product, Offers, Reviews, Filters)
+# ============================================================================
+
+@mcp.tool()
+async def search_google_product_offers(
+    product_token: Optional[str] = None,
+    product_id: Optional[str] = None,
+    prds: Optional[str] = None,
+    device: str = "desktop",
+    google_domain: str = "google.com",
+    gl: str = "us",
+    hl: str = "en",
+    location: Optional[str] = None,
+    uule: Optional[str] = None,
+    page: Optional[int] = None,
+    zero_retention: Optional[bool] = None
+) -> Dict[str, Any]:
+    """
+    Get product offers from Google Shopping - price comparison, merchants, and pricing data.
+
+    Comprehensive product offers search with support for:
+    - Price comparison across multiple merchants
+    - Merchant information and ratings
+    - Delivery costs and total pricing
+    - Payment methods accepted
+    - Stock availability information
+    - Return policy details
+
+    Args:
+        product_token: Product token from Google Shopping API (recommended over product_id)
+        product_id: Product ID from Google Shopping (less data than using product_token)
+        prds: Used when product_id is equal to 1 to define the product (for backward compatibility)
+        device: Device type ("desktop" or "mobile")
+        google_domain: Google domain to use (default: "google.com")
+        gl: Country code for results (default: "us")
+        hl: Language code (default: "en")
+        location: Location name for localized results (e.g., "New York, NY")
+        uule: Google's encoded location parameter (cannot be used with location)
+        page: Page number for pagination (first page: 5 results, subsequent: up to 10 offers)
+        zero_retention: Enterprise only - disable all logging for compliance (true/false)
+
+    Returns:
+        Dictionary containing:
+        - product: Basic product information (title, brand, rating, reviews)
+        - offers: Array of offers with merchant info, pricing, delivery, and payment details
+        - pagination: Current page and next page information if available
+
+    Offer object includes:
+        - position: Position in offers list
+        - title: Offer title
+        - link: URL to the offer
+        - price: Display price
+        - extracted_price: Numeric price value
+        - delivery_price: Delivery cost
+        - total_price: Total price (item + delivery)
+        - rating: Merchant rating
+        - reviews: Number of merchant reviews
+        - details: Delivery info, return policy, etc.
+        - payment_methods: Accepted payment methods
+        - merchant: Merchant name and favicon
+        - tag: Special tags like "Best price"
+
+    Examples:
+        - search_google_product_offers(product_token="abc123xyz")
+        - search_google_product_offers(product_id="12345", location="New York, NY")
+        - search_google_product_offers(product_token="abc123", page=2)
+
+    Notes:
+        - Recommended to use product_token from Google Shopping API results for better data
+        - product_token, product_id, or prds (when product_id=1) - at least one required
+        - First page returns 5 results, subsequent pages return up to 10 offers
+        - page parameter is not compatible with custom prds parameter
+    """
+    if not product_token and not product_id and not (product_id == "1" and prds):
+        return {
+            "error": "Either 'product_token' or 'product_id' must be provided. "
+                     "If product_id is '1', 'prds' parameter must also be provided.",
+            "type": "validation_error"
+        }
+
+    params = {
+        "engine": "google_product_offers",
+        "device": device,
+        "google_domain": google_domain,
+        "gl": gl,
+        "hl": hl
+    }
+
+    # Add the primary identifier
+    if product_token:
+        params["product_token"] = product_token
+    elif product_id:
+        params["product_id"] = product_id
+    if prds:  # Add prds if provided (for when product_id=1)
+        params["prds"] = prds
+
+    optional_params = {
+        "location": location,
+        "uule": uule,
+        "page": str(page) if page is not None else None,
+        "zero_retention": str(zero_retention).lower() if zero_retention is not None else None
+    }
+
+    for key, value in optional_params.items():
+        if value is not None:
+            params[key] = value
+
+    return await api_client.request(params)
+
+
+@mcp.tool()
+async def search_google_product(
+    product_token: Optional[str] = None,
+    product_id: Optional[str] = None,
+    prds: Optional[str] = None,
+    device: str = "desktop",
+    google_domain: str = "google.com",
+    gl: str = "us",
+    hl: str = "en",
+    location: Optional[str] = None,
+    uule: Optional[str] = None,
+    zero_retention: Optional[bool] = None
+) -> Dict[str, Any]:
+    """
+    Get detailed product information from Google Shopping.
+
+    Comprehensive product details with support for:
+    - Product specifications and description
+    - Product images and videos
+    - Customer reviews and ratings
+    - Price comparison across merchants
+    - Product variations and options
+    - Web reviews from multiple sources
+    - Product discussions and forums
+    - Typical price ranges
+
+    Args:
+        product_token: Product token from Google Shopping API (recommended over product_id)
+        product_id: Product ID from Google Shopping (less data than using product_token)
+        prds: Used when product_id is equal to 1 (only when product_id=1)
+        device: Device type ("desktop" or "mobile")
+        google_domain: Google domain to use (default: "google.com")
+        gl: Country code for results (default: "us")
+        hl: Language code (default: "en")
+        location: Location name for localized results (e.g., "New York, NY")
+        uule: Google's encoded location parameter (cannot be used with location)
+        zero_retention: Enterprise only - disable all logging for compliance (true/false)
+
+    Returns:
+        Dictionary containing:
+        - product: Detailed product information (title, brand, description, images, videos)
+        - offers: Array of current offers from multiple merchants
+        - typical_prices: Price range for the product across merchants
+        - web_reviews: Reviews from web sources
+        - review_results: Individual customer reviews
+        - top_insights: Key product insights
+        - specifications: Product specifications
+        - discussions_and_forums: Discussion threads about the product
+
+    Examples:
+        - search_google_product(product_token="abc123xyz")
+        - search_google_product(product_id="12345", location="New York, NY")
+        - search_google_product(product_token="def456", gl="uk", hl="en")
+
+    Notes:
+        - Recommended to use product_token from Google Shopping API results for better data
+        - product_token or product_id required (prds only when product_id=1)
+        - Returns comprehensive product information including specifications, reviews, and pricing
+    """
+    if not product_token and not product_id and not (product_id == "1" and prds):
+        return {
+            "error": "Either 'product_token' or 'product_id' must be provided. "
+                     "If product_id is '1', 'prds' parameter must also be provided.",
+            "type": "validation_error"
+        }
+
+    params = {
+        "engine": "google_product",
+        "device": device,
+        "google_domain": google_domain,
+        "gl": gl,
+        "hl": hl
+    }
+
+    # Add the primary identifier
+    if product_token:
+        params["product_token"] = product_token
+    elif product_id:
+        params["product_id"] = product_id
+    if prds:  # Add prds if provided (for when product_id=1)
+        params["prds"] = prds
+
+    optional_params = {
+        "location": location,
+        "uule": uule,
+        "zero_retention": str(zero_retention).lower() if zero_retention is not None else None
+    }
+
+    for key, value in optional_params.items():
+        if value is not None:
+            params[key] = value
+
+    return await api_client.request(params)
+
+
+@mcp.tool()
+async def search_google_product_reviews(
+    product_token: str,
+    rating: Optional[str] = None,
+    sort_by: Optional[str] = "most_relevant",
+    device: str = "desktop",
+    google_domain: str = "google.com",
+    gl: str = "us",
+    hl: str = "en",
+    location: Optional[str] = None,
+    uule: Optional[str] = None,
+    next_page_token: Optional[str] = None,
+    zero_retention: Optional[bool] = None
+) -> Dict[str, Any]:
+    """
+    Get product reviews from Google Shopping.
+
+    Comprehensive product reviews with support for:
+    - Filtering by rating (1-5 stars)
+    - Sorting by relevance or recency
+    - Pagination through review results
+    - Reviewer information and ratings
+    - Review text and dates
+
+    Args:
+        product_token: Product token from Google Shopping API (required)
+        rating: Filter reviews by rating ("all", "1", "2", "3", "4", "5")
+        sort_by: Sort reviews by ("most_relevant", "most_recent")
+        device: Device type ("desktop" or "mobile")
+        google_domain: Google domain to use (default: "google.com")
+        gl: Country code for results (default: "us")
+        hl: Language code (default: "en")
+        location: Location name for localized results (e.g., "New York, NY")
+        uule: Google's encoded location parameter (cannot be used with location)
+        next_page_token: Token to retrieve next page of reviews
+        zero_retention: Enterprise only - disable all logging for compliance (true/false)
+
+    Returns:
+        Dictionary containing:
+        - product: Product rating summary and histogram
+        - review_results: Array of individual reviews with reviewer info, rating, text
+        - pagination: Next page token if available
+
+    Review object includes:
+        - username: Reviewer name
+        - source: Where the review was posted
+        - rating: Rating given by reviewer (1-5 stars)
+        - title: Review title
+        - text: Review content
+        - date: Review date
+
+    Examples:
+        - search_google_product_reviews(product_token="abc123xyz")
+        - search_google_product_reviews(product_token="abc123", rating="5")
+        - search_google_product_reviews(product_token="def456", sort_by="most_recent")
+
+    Notes:
+        - product_token from Google Shopping API is required
+        - Use next_page_token for pagination of large review sets
+        - Can filter by rating and sort by relevance or recency
+    """
+    if not product_token:
+        return {
+            "error": "product_token is required for Google Product Reviews API",
+            "type": "validation_error"
+        }
+
+    params = {
+        "engine": "google_product_reviews",
+        "product_token": product_token,
+        "device": device,
+        "google_domain": google_domain,
+        "gl": gl,
+        "hl": hl,
+        "sort_by": sort_by
+    }
+
+    optional_params = {
+        "location": location,
+        "uule": uule,
+        "rating": rating,
+        "next_page_token": next_page_token,
+        "zero_retention": str(zero_retention).lower() if zero_retention is not None else None
+    }
+
+    for key, value in optional_params.items():
+        if value is not None:
+            params[key] = value
+
+    return await api_client.request(params)
+
+
+@mcp.tool()
+async def search_google_shopping_filters(
+    all_filters_token: str,
+    device: str = "desktop",
+    google_domain: str = "google.com",
+    gl: str = "us",
+    hl: str = "en",
+    zero_retention: Optional[bool] = None
+) -> Dict[str, Any]:
+    """
+    Get available filters for Google Shopping search results.
+
+    Retrieve all available filters that can be applied to refine Google Shopping results.
+    These filters come from the Google Shopping API response and allow for more targeted searches.
+
+    Args:
+        all_filters_token: Token from Google Shopping API response to retrieve filter data
+        device: Device type ("desktop" or "mobile")
+        google_domain: Google domain to use (default: "google.com")
+        gl: Country code for results (default: "us")
+        hl: Language code (default: "en")
+        zero_retention: Enterprise only - disable all logging for compliance (true/false)
+
+    Returns:
+        Dictionary containing:
+        - filters_results: Array of filter categories with their available options
+          - type: Filter category (e.g., "Category", "Brand", "Price")
+          - options: Array of available filter options
+            - text: Display text for the filter
+            - shoprs: Filter identifier for use in search requests
+
+    Filter option object includes:
+        - text: Human-readable filter option (e.g., "Electronics", "$25 - $50")
+        - shoprs: Token to use for applying this filter in subsequent searches
+
+    Examples:
+        - search_google_shopping_filters(all_filters_token="xyz789abc")
+        - search_google_shopping_filters(all_filters_token="def456", gl="uk")
+
+    Notes:
+        - all_filters_token must be obtained from a Google Shopping API response
+        - Filter options returned can be used to refine subsequent Google Shopping searches
+        - The shoprs value from filter options can be used in search_google_shopping as shoprs parameter
+    """
+    if not all_filters_token:
+        return {
+            "error": "all_filters_token is required for Google Shopping Filters API",
+            "type": "validation_error"
+        }
+
+    params = {
+        "engine": "google_shopping_filters",
+        "all_filters_token": all_filters_token,
+        "device": device,
+        "google_domain": google_domain,
+        "gl": gl,
+        "hl": hl
+    }
+
+    optional_params = {
+        "zero_retention": str(zero_retention).lower() if zero_retention is not None else None
+    }
+
+    for key, value in optional_params.items():
+        if value is not None:
+            params[key] = value
+
+    return await api_client.request(params)
+
+
+# ============================================================================
 # Server Lifecycle
 # ============================================================================
 
