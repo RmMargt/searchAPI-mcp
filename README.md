@@ -22,6 +22,7 @@ A production-ready Model Context Protocol (MCP) server providing comprehensive s
 - **Google Search** - Web results, knowledge graph, answer boxes, related questions
 - **Google Videos** - Video search with filtering by duration, source, and upload time
 - **Google AI Mode** - AI-generated overviews with cited sources and structured content
+- **Google Scholar** - Academic papers and citations with year filtering and pagination
 - **Google Maps** - Places, businesses, reviews, and location details
 - **Google Maps Place** - Detailed information for specific locations (hours, photos, amenities)
 - **Google Events** - Find concerts, conferences, festivals, and local activities
@@ -429,6 +430,27 @@ search_google_ai_mode(
 ```
 
 ---
+
+#### `search_google_scholar`
+Search Google Scholar for academic papers, citations, and scholarly sources.
+
+**Parameters:**
+- `q` (required) - Search query
+- `year_from` - Only include results published in or after this year (e.g., "2020")
+- `year_to` - Only include results published in or before this year
+- `page` - Page number (default: "1")
+
+**Returns:**
+- Academic results with title, link, snippet, publication info, and citation counts
+- Pagination and related searches
+
+**Example:**
+```python
+search_google_scholar(
+    q="retrieval augmented generation",
+    year_from="2020"
+)
+```
 
 ### Google Maps
 

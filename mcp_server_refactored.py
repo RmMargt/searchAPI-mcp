@@ -465,6 +465,49 @@ async def search_google_ai_mode(
 # ============================================================================
 
 @mcp.tool()
+async def search_google_scholar(
+    q: str,
+    year_from: Optional[str] = None,
+    year_to: Optional[str] = None,
+    page: str = "1"
+) -> Dict[str, Any]:
+    """
+    Search Google Scholar for academic papers, citations, and scholarly sources.
+
+    Find research papers, theses, books, and other academic literature.
+    Useful for literature reviews, finding citations, and research workflows.
+
+    Args:
+        q: Search query (e.g., "retrieval augmented generation", "author:hinton")
+        year_from: Only include results published in or after this year (e.g., "2020")
+        year_to: Only include results published in or before this year (e.g., "2024")
+        page: Page number of results (default: "1")
+
+    Returns:
+        Dictionary containing:
+        - organic_results: Array of papers with title, link, snippet, and publication info
+        - search_metadata: Request metadata
+        - search_information: Search context and parameters
+
+    Examples:
+        - search_google_scholar(q="retrieval augmented generation")
+        - search_google_scholar(q="transformer architectures", year_from="2020")
+        - search_google_scholar(q="graph neural networks", page="2")
+    """
+    params = {
+        "engine": "google_scholar",
+        "q": q,
+        "page": page
+    }
+
+    if year_from:
+        params["as_ylo"] = year_from
+    if year_to:
+        params["as_yhi"] = year_to
+
+    return await api_client.request(params)
+
+@mcp.tool()
 async def search_google_maps(
     query: str,
     location_ll: Optional[str] = None
